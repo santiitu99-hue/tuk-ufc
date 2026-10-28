@@ -1,0 +1,37 @@
+{
+ "actualizado": "2026-10-28T18:50:00Z",
+ "metas": {
+  "descanso": 2350,
+  "entreno": 2650
+ },
+ "dias": {},
+ "items": [
+  {
+   "fecha": "2026-10-28",
+   "hora": "13:00",
+   "nombre": "Empanadas de pollo fritas",
+   "cantidad": "2 unidades · almuerzo",
+   "precio": 0,
+   "kcal": 600,
+   "tipo": "comida"
+  },
+  {
+   "fecha": "2026-10-28",
+   "hora": "13:00",
+   "nombre": "Empanadas de jamón y queso fritas",
+   "cantidad": "2 unidades · almuerzo",
+   "precio": 0,
+   "kcal": 660,
+   "tipo": "comida"
+  },
+  {
+   "fecha": "2026-10-28",
+   "hora": "15:35",
+   "nombre": "Agua",
+   "cantidad": "1 litro",
+   "precio": 0,
+   "kcal": 0,
+   "tipo": "bebida"
+  }
+ ]
+}

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Comida y gasto mensual</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Comida">
+<meta name="theme-color" content="#f6f5ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151812" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: una columna tipo libreta; resumen de hoy arriba, días hacia abajo con su ticket de consumos */
+:root{
+  --bg:#f6f5ef; --surface:#ffffff; --fg:#1f2419; --muted:#6b705f; --line:#e2e1d6;
+  --accent:#3d5a2a; --accent-soft:#e6ecdc; --kcal:#b7791f; --kcal-soft:#f7ecd8; --danger:#b3412f; --danger-soft:#f6e1dc; --ok:#2f7d3e; --ok-soft:#dff0e2;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#151812; --surface:#1d211a; --fg:#ecefe4; --muted:#9ba08e; --line:#2e3329;
+  --accent:#9cc27c; --accent-soft:#26301f; --kcal:#e3ad5a; --kcal-soft:#352a17; --danger:#e07a68; --danger-soft:#3a201b; --ok:#7fcf8c; --ok-soft:#1d3322; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#151812; --surface:#1d211a; --fg:#ecefe4; --muted:#9ba08e; --line:#2e3329;
+  --accent:#9cc27c; --accent-soft:#26301f; --kcal:#e3ad5a; --kcal-soft:#352a17; --danger:#e07a68; --danger-soft:#3a201b; --ok:#7fcf8c; --ok-soft:#1d3322; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1{font:800 clamp(28px,6vw,40px)/1.05 var(--display);margin:0;letter-spacing:-.02em;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+
+.today{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.today h2{grid-column:1/-1;margin:0;font:600 18px var(--display)}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .v{font:500 clamp(24px,5vw,32px)/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.stat.money .v{color:var(--accent)} .stat.cal .v{color:var(--kcal)}
+.week{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px;display:flex;gap:20px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.week b{color:var(--fg);font-weight:500}
+
+details.add{border:1px dashed var(--line);border-radius:12px;padding:12px 16px}
+details.add summary{cursor:pointer;font-weight:600;color:var(--accent)}
+form{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:12px}
+form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.c2{grid-column:span 2}.c3{grid-column:span 3}.c6{grid-column:1/-1}
+input,select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:600 14px var(--body);border-radius:8px;border:0;padding:10px 14px;cursor:pointer;background:var(--accent);color:var(--bg)}
+.msg{font-size:13px;color:var(--muted)}
+
+.days{display:flex;flex-direction:column;gap:14px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--line)}
+.dayhead h3{margin:0;font:600 17px var(--display)}
+.pills{display:flex;gap:8px}
+.pill{font:500 13px var(--mono);font-variant-numeric:tabular-nums;padding:3px 9px;border-radius:999px}
+.pill.m{background:var(--accent-soft);color:var(--accent)} .pill.k{background:var(--kcal-soft);color:var(--kcal)}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:9px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.r{text-align:right;white-space:nowrap;font-family:var(--mono);font-variant-numeric:tabular-nums}
+td.h{color:var(--muted);font-family:var(--mono);width:1%;white-space:nowrap}
+.tag{font-size:11px;color:var(--muted);margin-left:6px}
+.qty{color:var(--muted);font-size:13px}
+.del{background:none;color:var(--muted);padding:2px 6px;font-size:16px;line-height:1}
+.del:hover{color:var(--danger)}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:28px 20px;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--fg);font:600 17px var(--display);margin-bottom:6px}
+.of{font-size:13px;color:var(--muted)}
+.hist{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.hist h2{margin:0;padding:14px 16px;font:600 17px var(--display);border-bottom:1px solid var(--line)}
+.hist ul{list-style:none;margin:0;padding:0}
+.hist li{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);border-left:4px solid var(--ok)}
+.hist li:last-child{border-bottom:0}
+.hist li.bad{border-left-color:var(--danger)}
+.hist .d{min-width:0}
+.hist .k{font:500 14px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hist .st{font:600 12px var(--body);padding:3px 9px;border-radius:999px;background:var(--ok-soft);color:var(--ok);white-space:nowrap}
+.hist li.bad .st{background:var(--danger-soft);color:var(--danger)}
+.hist .none{padding:16px;color:var(--muted);font-size:14px}
+.goal{grid-column:1/-1;display:flex;flex-direction:column;gap:8px}
+.bar{height:10px;border-radius:999px;background:var(--kcal-soft);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--kcal);border-radius:999px;transition:width .4s}
+.bar.over i{background:var(--danger)}
+.goalrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px}
+.goalrow .left{font-weight:600} .goalrow .left.over{color:var(--danger)}
+.chip{font:600 12px var(--body);padding:5px 11px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.chip[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.daygoal{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+@media (max-width:520px){form{grid-template-columns:1fr 1fr}.c2,.c3{grid-column:span 1}.c6,.wide{grid-column:1/-1}}
+
+.hist .none{display:block;border-left:0}
+html{color-scheme:light}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+.chip{cursor:default}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Comida y gasto mensual</h1>
+    <p class="sub" id="upd">Comidas y bebidas por día, con lo que gastaste y las calorías.</p>
+  </header>
+
+  <section class="today" aria-live="polite">
+    <h2 id="todayTitle">Hoy</h2>
+    <div class="stat money"><span class="label">Gastado</span><span class="v" id="tMoney">$0</span></div>
+    <div class="stat cal"><span class="label">Calorías</span><span class="v" id="tKcal">0 kcal</span><span class="of" id="tMeta">de 2.350 kcal</span></div>
+    <div class="goal"><div class="bar" id="tBarBox"><i id="tBar"></i></div><div class="goalrow"><span class="left" id="tLeft">Te quedan 2.350 kcal</span><span class="chip" id="tTrain">Día de descanso</span></div></div>
+    <div class="week"><span>Este mes: <b class="num" id="mMoney">$0</b> · <b class="num" id="mKcal">0 kcal</b></span><span>Últimos 7 días: <b class="num" id="wMoney">$0</b></span><span>Promedio diario: <b class="num" id="wKcal">0 kcal</b></span></div>
+  </section>
+
+  <section class="hist" aria-labelledby="histT">
+    <h2 id="histT">Días cerrados</h2>
+    <ul id="histList"><li class="none">Cuando termine el día de hoy aparece acá con su total: en verde si quedaste dentro de tu meta, en rojo si te pasaste.</li></ul>
+  </section>
+
+  <section class="days" id="days">
+    <div class="empty"><strong>Cargando…</strong>Buscando tus comidas.</div>
+  </section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const fmt$=n=>"$"+Math.round(n||0).toLocaleString("es-AR");
+const fmtK=n=>Math.round(n||0).toLocaleString("es-AR")+" kcal";
+const tz="America/Argentina/Buenos_Aires";
+const todayISO=()=>new Intl.DateTimeFormat("en-CA",{timeZone:tz}).format(new Date());
+function dayName(iso){
+  const td=new Date(todayISO()+"T12:00:00"), d=new Date(iso+"T12:00:00");
+  const diff=Math.round((td-d)/864e5);
+  const s=d.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+  const cap=s.charAt(0).toUpperCase()+s.slice(1);
+  return diff===0?"Hoy · "+cap:diff===1?"Ayer · "+cap:cap;
+}
+function esc(s){const d=document.createElement("div");d.textContent=s??"";return d.innerHTML}
+let ITEMS=[], DIAS={}, METAS={descanso:2350,entreno:2650};
+const metaDe=f=>DIAS[f]?METAS.entreno:METAS.descanso;
+function goal(f,kcal){const meta=metaDe(f),left=meta-kcal;return{meta,left,pct:Math.min(100,kcal/meta*100),over:left<0}}
+const tot=a=>a.reduce((s,i)=>[s[0]+(+i.precio||0),s[1]+(+i.kcal||0)],[0,0]);
+function render(){
+  const today=todayISO();
+  $("#todayTitle").textContent=dayName(today);
+  const byDay={}; for(const it of ITEMS){(byDay[it.fecha]=byDay[it.fecha]||[]).push(it)}
+  const days=Object.keys(byDay).sort().reverse();
+  const t=tot(byDay[today]||[]), tg=goal(today,t[1]);
+  $("#tMoney").textContent=fmt$(t[0]); $("#tKcal").textContent=fmtK(t[1]);
+  $("#tMeta").textContent="de "+fmtK(tg.meta);
+  $("#tBar").style.width=tg.pct+"%"; $("#tBarBox").classList.toggle("over",tg.over);
+  $("#tLeft").textContent=tg.over?"Te pasaste "+fmtK(-tg.left):"Te quedan "+fmtK(tg.left);
+  $("#tLeft").classList.toggle("over",tg.over);
+  $("#tTrain").textContent=DIAS[today]?"Día de entreno":"Día de descanso";
+  $("#tTrain").setAttribute("aria-pressed",String(!!DIAS[today]));
+  const lim=new Date(today+"T12:00:00"); lim.setDate(lim.getDate()-6); const limISO=lim.toISOString().slice(0,10);
+  const wk=days.filter(d=>d>=limISO), w=tot(wk.flatMap(d=>byDay[d]));
+  const m=tot(days.filter(d=>d.slice(0,7)===today.slice(0,7)).flatMap(d=>byDay[d]));
+  $("#mMoney").textContent=fmt$(m[0]); $("#mKcal").textContent=fmtK(m[1]);
+  $("#wMoney").textContent=fmt$(w[0]); $("#wKcal").textContent=fmtK(wk.length?w[1]/wk.length:0);
+  const closed=days.filter(d=>d<today);
+  $("#histList").innerHTML=closed.length?closed.map(d=>{const k=tot(byDay[d])[1],g=goal(d,k);
+    return `<li class="${g.over?"bad":""}"><span class="d">${esc(dayName(d))}</span><span class="k">${Math.round(k).toLocaleString("es-AR")} / ${fmtK(g.meta)}</span><span class="st">${g.over?"+"+Math.round(-g.left).toLocaleString("es-AR")+" de más":"Cumplido"}</span></li>`}).join("")
+    :'<li class="none">Cuando termine el día de hoy aparece acá con su total: en verde si quedaste dentro de tu meta, en rojo si te pasaste.</li>';
+  const box=$("#days");
+  if(!days.length){box.innerHTML='<div class="empty"><strong>Todavía no hay nada anotado</strong>Mandale a Claude lo que comiste o tomaste y aparece acá.</div>';return}
+  box.innerHTML=days.map(d=>{
+    const list=byDay[d].slice().sort((a,b)=>(a.hora||"").localeCompare(b.hora||""));
+    const s=tot(list),g=goal(d,s[1]);
+    return `<article class="day"><div class="dayhead"><h3>${esc(dayName(d))}</h3><div class="pills"><span class="pill m">${fmt$(s[0])}</span><span class="pill k">${Math.round(s[1]).toLocaleString("es-AR")} / ${fmtK(g.meta)}</span></div></div>
+    <div class="daygoal"><div class="bar${g.over?" over":""}"><i style="width:${g.pct}%"></i></div><div class="goalrow"><span class="left${g.over?" over":""}">${g.over?"Te pasaste "+fmtK(-g.left):(d===today?"Te quedan ":"Quedaron ")+fmtK(g.left)}</span><span class="chip" aria-pressed="${!!DIAS[d]}">${DIAS[d]?"Día de entreno":"Día de descanso"}</span></div></div>
+    <div class="tbl"><table><tbody>${list.map(i=>`<tr><td class="h">${esc(i.hora||"–")}</td><td>${esc(i.nombre)}${i.tipo==="bebida"?'<span class="tag">bebida</span>':""}${i.cantidad?`<div class="qty">${esc(i.cantidad)}</div>`:""}</td><td class="r">${+i.precio?fmt$(i.precio):"–"}</td><td class="r">${fmtK(i.kcal)}</td></tr>`).join("")}</tbody></table></div></article>`}).join("");
+}
+async function load(){
+  try{
+    const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"}); const j=await r.json();
+    ITEMS=j.items||[]; DIAS=j.dias||{}; METAS={descanso:+(j.metas||{}).descanso||2350,entreno:+(j.metas||{}).entreno||2650};
+    if(j.actualizado){$("#upd").textContent="Actualizado "+new Date(j.actualizado).toLocaleString("es-AR",{timeZone:tz,day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}
+    render();
+  }catch(e){$("#days").innerHTML='<div class="empty"><strong>No se pudieron cargar los datos</strong>Revisá la conexión y volvé a abrir la página.</div>'}
+}
+load();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
+</script>
+</body>
+</html>
