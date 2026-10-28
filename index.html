@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&text=%F0%9F%87%A6%F0%9F%87%B7%F0%9F%87%A6%F0%9F%87%BA%F0%9F%87%A6%F0%9F%87%BF%F0%9F%87%A7%F0%9F%87%AD%F0%9F%87%A7%F0%9F%87%B7%F0%9F%87%A8%F0%9F%87%BF%F0%9F%87%AB%F0%9F%87%B7%F0%9F%87%AC%F0%9F%87%AA%F0%9F%87%AE%F0%9F%87%A9%F0%9F%87%AE%F0%9F%87%B6%F0%9F%87%AF%F0%9F%87%B2%F0%9F%87%AF%F0%9F%87%B5%F0%9F%87%B0%F0%9F%87%BF%F0%9F%87%B0%F0%9F%87%AC%F0%9F%87%B0%F0%9F%87%B7%F0%9F%87%B1%F0%9F%87%B9%F0%9F%87%B2%F0%9F%87%BD%F0%9F%87%B3%F0%9F%87%B1%F0%9F%87%B3%F0%9F%87%BF%F0%9F%87%B5%F0%9F%87%AA%F0%9F%87%B7%F0%9F%87%BA%F0%9F%87%B7%F0%9F%87%B8%F0%9F%87%B8%F0%9F%87%B0%F0%9F%87%B8%F0%9F%87%AA%F0%9F%87%BA%F0%9F%87%B8%F0%9F%87%BB%F0%9F%87%AA%F0%9F%8F%B4%F3%A0%81%A7%F3%A0%81%A2%F3%A0%81%A5%F3%A0%81%AE%F3%A0%81%A7%F3%A0%81%BF%F0%9F%8F%B4%F3%A0%81%A7%F3%A0%81%A2%F3%A0%81%B3%F3%A0%81%A3%F3%A0%81%B4%F3%A0%81%BF&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap">
 <style>
 /* Layout: programa de pelea — tabs de eventos, cada pelea con resumen (récord, forma, chances) y ficha desplegable roja vs azul */
@@ -93,6 +94,7 @@ h2{font-family:var(--label);font-weight:700;font-size:15px;text-transform:upperc
 .vsum{margin-top:12px;font-size:14px;line-height:1.6}
 .chip{display:inline-block;font-family:var(--label);font-weight:700;font-size:14px;padding:1px 8px;border-radius:999px;border:1px solid var(--gold);margin:2px 2px 0 0;white-space:nowrap}
 .chip.r{color:var(--red)} .chip.b{color:var(--blue)}
+.flag{font-family:"Apple Color Emoji","Noto Color Emoji","Segoe UI Emoji",sans-serif;font-size:.8em;vertical-align:.08em;line-height:1}
 .noodds{font-family:var(--label);font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;text-align:center;padding:4px 14px 12px}
 .more{width:100%;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font-family:var(--label);font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:10px;cursor:pointer}
 .detail{border-top:1px solid var(--line)}
@@ -453,11 +455,13 @@ const VAL=6; // puntos de diferencia para marcar ventaja
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const FLAG={"ARG": "🇦🇷", "AUS": "🇦🇺", "AZE": "🇦🇿", "BHR": "🇧🇭", "BRA": "🇧🇷", "CZE": "🇨🇿", "FRA": "🇫🇷", "GEO": "🇬🇪", "IDN": "🇮🇩", "IRQ": "🇮🇶", "JAM": "🇯🇲", "JPN": "🇯🇵", "KAZ": "🇰🇿", "KGZ": "🇰🇬", "KOR": "🇰🇷", "LTU": "🇱🇹", "MEX": "🇲🇽", "NED": "🇳🇱", "NZL": "🇳🇿", "PER": "🇵🇪", "RUS": "🇷🇺", "SRB": "🇷🇸", "SVK": "🇸🇰", "SWE": "🇸🇪", "USA": "🇺🇸", "VEN": "🇻🇪", "ENG": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "SCO": "🏴󠁧󠁢󠁳󠁣󠁴󠁿"};
 const SK=["Striking","Grappling","Lucha"];
 const L=x=>x==="N"?"–":x==="W"?"G":"P";
 const dots=(f,rev)=>{const d=f.slice(0,5).map(x=>`<span class="dot ${x[0]}" title="${esc(x[1])}">${L(x[0])}</span>`);return (rev?d.reverse():d).join("")};
 
-function side(f,s){return `<div class="side ${s}"><div class="fname">${esc(f.n)}</div><div class="sub">${esc(f.c)} · ${esc(f.rk)}</div><div class="rec">${esc(f.rec)}</div><div class="form" aria-label="Últimas peleas">${dots(f.f,s==="b")}</div></div>`}
+const flag=c=>FLAG[c]?`<span class="flag" role="img" aria-label="${esc(c)}">${FLAG[c]}</span>`:"";
+function side(f,s){return `<div class="side ${s}"><div class="fname">${s==="r"?flag(f.c)+" ":""}${esc(f.n)}${s==="b"?" "+flag(f.c):""}</div><div class="sub">${esc(f.c)} · ${esc(f.rk)}</div><div class="rec">${esc(f.rec)}</div><div class="form" aria-label="Últimas peleas">${dots(f.f,s==="b")}</div></div>`}
 function corner(f,s){
   const sk=f.s.map((v,i)=>`<div class="sk"><span class="lbl">${SK[i]}</span><span class="bar"><i style="width:${v*10}%"></i></span></div>`).join("");
   const h=f.f.length?f.f.map(x=>`<li><span class="dot ${x[0]}">${L(x[0])}</span><span>${esc(x[1])}<span class="m">${esc(x[2])}</span></span></li>`).join(""):`<li class="none">Sin peleas registradas</li>`;
