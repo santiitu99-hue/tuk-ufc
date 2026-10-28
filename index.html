@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TUK UFC</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="TUK UFC">
+<meta name="theme-color" content="#f3f2ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121419" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: programa de pelea — tabs de eventos, cada pelea con resumen (récord, forma, chances) y ficha desplegable roja vs azul */
+:root{
+  --bg:#f3f2ef; --surface:#ffffff; --ink:#16181d; --muted:#626670; --line:#dddbd5;
+  --red:#c4162b; --blue:#1d4fb8;
+  --win:#1f7a4a; --loss:#b3261e; --nc:#8a8d94; --gold:#a8771a;
+  --display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body:"Barlow", "Helvetica Neue", Arial, sans-serif;
+  --label:"Barlow Condensed", "Arial Narrow", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121419; --surface:#1b1e25; --ink:#ecebe7; --muted:#9a9ea8; --line:#2c3039;
+  --red:#ff4b5c; --blue:#6f9cff; --win:#3fae74; --loss:#e0574e; --nc:#80848c; --gold:#e3b04b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121419; --surface:#1b1e25; --ink:#ecebe7; --muted:#9a9ea8; --line:#2c3039;
+  --red:#ff4b5c; --blue:#6f9cff; --win:#3fae74; --loss:#e0574e; --nc:#80848c; --gold:#e3b04b; color-scheme:dark}
+*{box-sizing:border-box}
+html{color-scheme:light;-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+a{color:inherit}
+header.top{padding-top:18px}
+.brand{font-family:var(--display);font-weight:900;font-size:36px;letter-spacing:.5px;line-height:1;text-transform:uppercase}
+.brand span{color:var(--red)}
+.asof{font-family:var(--label);font-size:13px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+button:focus-visible,a:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);margin:14px calc(-1*max(16px,env(safe-area-inset-left,0px))) 0;padding:10px max(16px,env(safe-area-inset-left,0px));display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 12px;text-align:left;cursor:pointer;font-family:var(--label)}
+.tab small{display:block;font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.tab strong{font-size:16px;font-weight:700}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected="true"] small{color:var(--bg);opacity:.75}
+.event-head{margin-top:20px}
+.kicker{font-family:var(--label);font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:13px;color:var(--red)}
+h1{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;margin:4px 0 6px;text-transform:uppercase;text-wrap:balance}
+.meta{color:var(--muted);font-size:14px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.meta b{color:var(--ink);font-weight:600}
+.count{margin-top:10px;font-family:var(--label);font-size:15px;font-weight:600;letter-spacing:.03em}
+.count span{font-variant-numeric:tabular-nums}
+h2{font-family:var(--label);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:26px 0 10px}
+.fight{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.fight-top{display:flex;justify-content:space-between;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line);font-family:var(--label);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.fight-top .tag{color:var(--gold);font-weight:700;text-align:right}
+.sum{display:grid;grid-template-columns:1fr auto 1fr;gap:6px 10px;align-items:start;padding:12px 14px 4px}
+.sum .side{min-width:0}
+.sum .side.b{text-align:right}
+.sum .vs{font-family:var(--label);color:var(--muted);font-size:13px;padding-top:6px}
+.fname{font-family:var(--display);font-weight:800;font-size:23px;line-height:1.02;text-transform:uppercase;overflow-wrap:anywhere}
+.side.r .fname{color:var(--red)} .side.b .fname{color:var(--blue)}
+.sub{font-family:var(--label);font-size:13px;color:var(--muted);letter-spacing:.04em;margin-top:3px;text-transform:uppercase}
+.rec{font-family:var(--label);font-weight:700;font-size:19px;margin-top:4px;font-variant-numeric:tabular-nums}
+.form{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.side.b .form{justify-content:flex-end}
+.dot{width:21px;height:21px;border-radius:5px;display:grid;place-items:center;font-family:var(--label);font-weight:700;font-size:13px;color:#fff;flex:0 0 auto}
+.dot.W{background:var(--win)} .dot.L{background:var(--loss)} .dot.N{background:var(--nc)}
+.prob{padding:8px 14px 12px}
+.prob-row{display:flex;justify-content:space-between;font-family:var(--display);font-weight:800;font-size:24px;font-variant-numeric:tabular-nums;line-height:1}
+.prob-row .pr{color:var(--red)} .prob-row .pb{color:var(--blue)}
+.split{display:flex;height:9px;border-radius:5px;overflow:hidden;margin:6px 0 5px;background:var(--line)}
+.split .r{background:var(--red)} .split .b{background:var(--blue)}
+.src{font-family:var(--label);font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;text-align:center}
+.noodds{font-family:var(--label);font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;text-align:center;padding:4px 14px 12px}
+.more{width:100%;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font-family:var(--label);font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:10px;cursor:pointer}
+.detail{border-top:1px solid var(--line)}
+.tape{display:grid;grid-template-columns:1fr 1fr}
+.corner{padding:12px 14px;min-width:0}
+.corner.r{border-right:1px solid var(--line)}
+.skills{display:grid;gap:5px}
+.sk{display:grid;grid-template-columns:62px 1fr;align-items:center;gap:6px;font-family:var(--label);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.corner.b .sk{grid-template-columns:1fr 62px}
+.corner.b .sk .lbl{order:2;text-align:right}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;display:flex}
+.corner.b .bar{justify-content:flex-end}
+.bar i{display:block;height:100%;border-radius:3px}
+.corner.r .bar i{background:var(--red)} .corner.b .bar i{background:var(--blue)}
+.edge{font-size:13.5px;margin-top:10px;line-height:1.4}
+.prof{display:inline-block;margin-top:8px;font-family:var(--label);font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.hist{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px;font-size:13px}
+.hist li{display:flex;gap:6px;align-items:flex-start}
+.hist li .dot{width:18px;height:18px;font-size:11px;margin-top:1px}
+.hist .m{color:var(--muted);font-size:12px;display:block}
+.hist .none{color:var(--muted);font-size:12px}
+.note{margin-top:28px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.note p{margin:0 0 8px;max-width:65ch}
+@media (max-width:420px){.fname{font-size:19px}h1{font-size:34px}.prob-row{font-size:21px}.rec{font-size:17px}.dot{width:19px;height:19px;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">TUK <span>UFC</span></div>
+    <div class="asof">Numerados y Fight Nights · datos al 26/10/2026 · hora Argentina</div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Eventos"></nav>
+  <main id="ev"></main>
+  <section class="note">
+    <p><b>Chances.</b> Con cuotas publicadas, las paso a probabilidad sacando el margen de la casa. Sin línea, uso un modelo estadístico (Combat Edge) o el pronóstico de fans de Tapology, y lo aclaro debajo de cada barra. Las cuotas se mueven hasta el día de la pelea.</p>
+    <p><b>Perfil de habilidades.</b> Es una lectura de 1 a 10 armada con las estadísticas oficiales de UFC.com (golpes por minuto, derribos, sumisiones, cómo ganó cada uno), no un dato oficial. Para peleadores con pocas peleas en la UFC es más aproximada.</p>
+    <p><b>Últimas 5.</b> G = ganó, P = perdió, – = sin resultado o empate. La más reciente va primero. Si alguien tiene menos de 5, son las que hay registradas. Sirve para seguir las peleas; no es consejo de apuestas.</p>
+  </section>
+</div>
+
+<script>
+// F(nombre, país, ranking, récord, slug UFC.com, [striking, grappling, lucha], últimas peleas [[W/L/N, rival, detalle]], se destaca en)
+const F=(n,c,rk,rec,u,s,f,e)=>({n,c,rk,rec,u,s,f,e});
+const B=(wc,r,b,p,src,tag)=>({wc,r,b,p,src,tag});
+
+const EV=[
+{id:"oct31",short:"31 OCT",name:"Moicano vs Nolan",kind:"UFC Fight Night",venue:"Meta APEX, Las Vegas",start:"2026-10-31T21:00:00-03:00",times:"Preliminares 18:00 · Estelar 21:00",tv:"Paramount+",
+groups:[
+["Peleas destacadas",true,[
+ B("Peso ligero",
+  F("Renato Moicano","BRA","#12 ligero","21-7-1","renato-moicano",[7,9,5],[["W","Chris Duncan","Sum. R2 · abr 2026"],["L","Beneil Dariush","Dec. unánime · jun 2025"],["L","Islam Makhachev","Sum. R1 · título · ene 2025"],["W","Benoît Saint Denis","TKO R2 · sep 2024"],["W","Jalin Turner","TKO R2 · abr 2024"]],"Mata león letal: 11 sumisiones, todas por la espalda. Buen boxeo; casi no derriba (12% de efectividad)."),
+  F("Tom Nolan","AUS","#14 ligero","11-1-0","tom-nolan",[8,6,5],[["W","Farès Ziam","Dec. unánime · jun 2026"],["W","Charlie Campbell","Sum. R1 · sep 2025"],["W","Viacheslav Borshchev","Dec. unánime · feb 2025"],["W","Alex Reyes","Dec. unánime · ago 2024"],["W","Victor Martinez","TKO R1 · may 2024"]],"Volumen alto (4,8 golpes/min) y mucho trabajo al cuerpo. Mide 1,91 m. Racha de 5 y primera pelea a 5 rounds."),
+  [49,51],"Cuotas: Moicano -105 · Nolan -115","Pelea estelar · 5 rounds"),
+ B("Peso welter",
+  F("Randy Brown","JAM","Sin ranking","20-8-0","randy-brown",[7,6,4],[["L","Kevin Holland","Dec. unánime · abr 2026"],["L","Gabriel Bonfim","KO R2 · nov 2025"],["W","Nicolas Dalby","KO R2 · abr 2025"],["L","Bryan Battle","Dec. dividida · dic 2024"],["W","Elizeu Zaleski","Dec. unánime · jun 2024"]],"Striker de distancia con 1,98 m de alcance. Viene de dos derrotas y necesita ganar."),
+  F("Jacobe Smith","USA","Sin ranking","13-0-0","jacobe-smith",[6,7,9],[["W","Bruce Whitehead","TKO R1 · oct 2026"],["W","Josiah Harrell","KO R1 · feb 2026"],["W","Niko Price","Sum. R2 · jun 2025"],["W","Preston Parsons","KO R1 · ene 2025"],["W","Christien Savoie","TKO R2 · Contender Series"]],"Luchador de Oklahoma State: lleva al piso y golpea desde arriba (la mitad de sus golpes son en el suelo). Acepta con 12 días de aviso."),
+  [25,75],"Cuotas de apertura: Brown +284 · Smith -350","Coestelar")
+]],
+["Cartelera principal",false,[
+ B("Gallo femenino",
+  F("Yana Santos","RUS","#6 gallo","17-8-0","yana-santos",[7,5,5],[["W","Macy Chiasson","Dec. unánime · oct 2025"],["W","Miesha Tate","Dec. unánime · may 2025"],["W","Chelsea Chandler","Dec. unánime · ago 2024"],["L","Karol Rosa","Dec. dividida · jul 2023"],["L","Holly Holm","Dec. unánime · mar 2023"]],"Striker con volumen (4,4 golpes/min) y mucha experiencia. Racha de 3, casi siempre por puntos."),
+  F("Luana Santos","BRA","#7 gallo","11-2-0","luana-santos",[6,8,6],[["W","Karol Rosa","Dec. unánime · jun 2026"],["W","Melissa Croden","Dec. unánime · dic 2025"],["W","Tainara Lisboa","Sum. R2 · may 2025"],["L","Casey O'Neill","Dec. unánime · ago 2024"],["W","Mariya Agapova","Sum. R1 · jul 2024"]],"Judoca: derriba y busca la sumisión. Defensa de derribo 86%. Tiene 26 años y racha de 3."),
+  [50,50],"Las casas no coinciden en la favorita"),
+ B("Peso mosca",
+  F("Ode' Osbourne","JAM","Sin ranking","13-9-0","ode-osbourne",[6,4,4],[["L","Alibi Idiris","Dec. unánime · feb 2026"],["L","Steve Erceg","Dec. unánime · ago 2025"],["W","Luis Gurule","TKO R2 · abr 2025"],["L","Ronaldo Rodriguez","Dec. unánime · sep 2024"],["L","Jafel Filho","Sum. R1 · mar 2024"]],"Zurdo veloz y explosivo, peligroso en el primer round. Ganó 1 de sus últimas 5."),
+  F("Cody Durden","USA","Sin ranking","18-11-1","cody-durden",[5,5,7],[["L","Alessandro Costa","Sum. R2 · jul 2026"],["W","Jafel Filho","Dec. unánime · abr 2026"],["L","Nyamjargal Tumendemberel","Dec. unánime · mar 2026"],["L","Allan Nascimento","Sum. R2 · nov 2025"],["L","Jose Ochoa","KO R2 · jun 2025"]],"Luchador incansable: 3,8 derribos cada 15 minutos. Ganó 1 de sus últimas 5."),
+  [50,50],"Cuotas de apertura: -110 · -110"),
+ B("Peso mediano",
+  F("Zachary Reese","USA","Sin ranking","10-4-0","zachary-reese",[6,6,5],[["L","Ryan Gandra","KO R1 · jul 2026"],["L","Michel Pereira","Dec. dividida · feb 2026"],["W","Jackson McVey","Sum. R2 · nov 2025"],["N","Sedriques Dumas","Sin resultado R1 · sep 2025"],["W","Duško Todorović","Dec. unánime · may 2025"]],"Agresivo y finalizador: 5 KO y 3 sumisiones. Viene de 2 derrotas."),
+  F("Mickey Gall","USA","Sin ranking","7-7-0","mickey-gall",[4,7,3],[["L","Ramiz Brahimaj","KO R1 · nov 2024"],["L","Bassil Hafez","Dec. unánime · jun 2024"],["L","Mike Malott","KO R1 · abr 2022"],["L","Alex Morono","Dec. unánime · dic 2021"],["W","Jordan Williams","Sum. R1 · jul 2021"]],"Especialista en mata león, pero viene de 4 derrotas y casi 2 años sin pelear."),
+  null,""),
+ B("Peso welter",
+  F("Jean-Paul Lebosnoyani","USA","Sin ranking","11-2-0","jean-paul-lebosnoyani",[6,6,6],[["W","Seokhyeon Ko","Dec. unánime · jul 2026"],["W","Phil Rowe","Dec. dividida · feb 2026"]],"Completo y 2-0 en la UFC. Nadie lo pudo derribar todavía."),
+  F("Farman Hasanov","AZE","Sin ranking","6-0-0","farman-hasanov",[3,5,8],[["W","Eric Nolan","Dec. unánime · jun 2026"]],"Luchador invicto de American Top Team. Busca el derribo una y otra vez."),
+  [68,32],"Cuotas: Lebosnoyani -245 · Hasanov +200")
+]],
+["Preliminares",false,[
+ B("Peso pluma",
+  F("Francis Marshall","USA","Sin ranking","10-3-0","francis-marshall",[6,6,6],[["W","Lucas Brennan","Dec. unánime · abr 2026"],["W","Erik Silva","Sum. R1 · feb 2026"],["L","Mairon Santos","Dec. dividida · mar 2025"],["W","Dennis Buzukja","Dec. dividida · ago 2024"],["L","Isaac Dulgarian","TKO R1 · ago 2023"]],"Equilibrado y difícil de derribar (89%). Racha de 2."),
+  F("Dakota Hope","USA","Sin ranking","11-2-0","dakota-hope",[7,4,4],[["L","Kai Kamaka III","Dec. dividida · abr 2026"]],"Pelea de ida y vuelta: más de 7 golpes por minuto en su debut, que perdió en fallo dividido."),
+  [65,35],"Cuotas de apertura: Marshall -205 · Hope +177"),
+ B("Peso welter",
+  F("Rodrigo Sezinando","BRA","Sin ranking","9-2-0","rodrigo-sezinando",[5,5,6],[["L","Daniil Donchenko","TKO R1 · final TUF · sep 2025"]],"Finalista de The Ultimate Fighter 33. Vuelve tras más de un año sin pelear."),
+  F("Theodor Berggren","SWE","Sin ranking","8-4-0","theodor-berggren",[6,4,4],[["L","Daniil Donchenko","TKO R2 · jun 2026"]],"Todas sus victorias fueron por finalización. Recibió mucho castigo en su debut."),
+  [66,34],"Cuotas de apertura: Sezinando -220 · Berggren +186"),
+ B("Peso pluma",
+  F("Julian Erosa","USA","Sin ranking","31-14-0","julian-erosa",[7,6,4],[["L","Lerryan Douglas","KO R1 · mar 2026"],["L","Melquizael Costa","Dec. unánime · may 2025"],["W","Darren Elkins","TKO R1 · abr 2025"],["W","Christian Rodriguez","Sum. R1 · jul 2024"],["W","Ricardo Ramos","Sum. R1 · mar 2024"]],"Veterano de guerra: 6,2 golpes/min y guillotina peligrosa. Viene de 2 derrotas."),
+  F("JeongYeong Lee","KOR","Sin ranking","11-3-0","jeongyeong-lee",[6,6,4],[["L","Daniel Santos","Dec. unánime · may 2025"],["L","Hyder Amil","TKO R1 · jul 2024"],["W","Blake Bilder","Dec. unánime · feb 2024"],["W","Yi Zha","Dec. dividida · feb 2023"],["W","Lu Kai","KO R1 · Road to UFC"]],"Ganador del Road to UFC. Viene de 2 derrotas y casi un año y medio parado."),
+  [28,72],"Cuotas de apertura: Erosa +245 · Lee -300"),
+ B("Peso mediano",
+  F("Nick Klein","USA","Sin ranking","6-3-0","nick-klein",[4,6,7],[["W","Andrey Pulyaev","TKO R2 · ago 2025"],["L","Mansur Abdul-Malik","TKO R2 · feb 2025"]],"Luchador: 5,8 derribos cada 15 minutos. Le cuesta en el intercambio de pie."),
+  F("Joseph Kropschot","USA","Debut UFC","9-3-0","joseph-kropschot",[5,8,6],[["W","Jon Kunneman","Dec. unánime · Contender · ago 2026"],["W","David Allakhverdiev","Sum. · LFA · feb 2026"],["W","Adland Benson","Sum. · may 2025"],["W","Mauricio Alonso","Sum. · dic 2024"],["L","Kyle Chambers","Sum. · dic 2023"]],"Ex campeón de LFA y especialista en BJJ: 3 mata león seguidos antes del Contender."),
+  [34,66],"Cuotas de apertura: Klein +183 · Kropschot -215"),
+ B("Paja femenino",
+  F("Talita Alencar","BRA","Sin ranking","8-1-1","talita-alencar",[5,8,6],[["W","Julia Polastri","Dec. unánime · abr 2026"],["W","Ariane Carnelossi","Sum. R3 · nov 2025"],["W","Vanessa Demopoulos","Dec. unánime · abr 2025"],["L","Stephanie Luciano","Dec. unánime · ago 2024"],["W","Rayanne Amanda","Dec. dividida · dic 2023"]],"Grapplera de BJJ con racha de 3. Derriba 3 veces cada 15 minutos."),
+  F("Piera Rodriguez","VEN","Sin ranking","12-2-0","piera-rodriguez",[6,4,7],[["W","Sam Hughes","Dec. unánime · mar 2026"],["W","Ketlen Souza","Dec. dividida · ago 2025"],["W","Josefine Knutsson","Dec. unánime · dic 2024"],["L","Ariane Carnelossi","Descalificación R2 · may 2024"],["L","Gillian Robertson","Sum. R2 · abr 2023"]],"Potente y con buena lucha: 4 derribos cada 15' y 82% de defensa. Racha de 3."),
+  [43,57],"Cuotas: Alencar +120 · Rodriguez -145"),
+ B("Mosca femenino",
+  F("Lucia Szabová","SVK","Debut UFC","10-0-0","lucia-szabova",[7,6,6],[["W","Lucie Pudilová","Defensa de título · Oktagon · ago 2026"],["W","Leidiane Fernandes","Oktagon · abr 2026"],["W","Cecilie Bolander","Título · Oktagon · ago 2025"]],"Doble campeona de Oktagon e invicta. Monta y castiga desde arriba."),
+  F("Tainara Lisboa","BRA","Sin ranking","7-4-0","tainara-lisboa",[6,5,4],[["L","Melissa Croden","TKO R3 · oct 2025"],["L","Luana Santos","Sum. R2 · may 2025"],["W","Ravena Oliveira","Dec. unánime · oct 2023"],["W","Jessica-Rose Clark","Sum. R3 · may 2023"]],"Muay thai con 3 KO y 3 sumisiones, pero viene de 2 derrotas."),
+  [77,23],"Cuotas de apertura: Szabová -400 · Lisboa +316")
+]]
+]},
+
+{id:"nov7",short:"7 NOV",name:"Bonfim vs Brady",kind:"UFC Fight Night",venue:"Meta APEX, Las Vegas",start:"2026-11-07T22:00:00-03:00",times:"Preliminares 19:00 · Estelar 22:00",tv:"Paramount+",
+groups:[
+["Peleas destacadas",true,[
+ B("Peso welter",
+  F("Gabriel Bonfim","BRA","#5 welter","20-1-0","gabriel-bonfim",[8,8,5],[["W","Belal Muhammad","Dec. unánime (5R) · jun 2026"],["W","Randy Brown","KO R2 · nov 2025"],["W","Stephen Thompson","Dec. dividida · jul 2025"],["W","Khaos Williams","Sum. R2 · feb 2025"],["W","Ange Loosa","Dec. unánime · jul 2024"]],"Completo: 13 sumisiones y boxeo de ex campeón nacional de Brasil. Defensa de derribo 79%. Racha de 5."),
+  F("Sean Brady","USA","#6 welter","19-2-0","sean-brady",[6,9,8],[["W","Joaquin Buckley","Dec. unánime · may 2026"],["L","Michael Morales","TKO R1 · nov 2025"],["W","Leon Edwards","Sum. R4 · mar 2025"],["W","Gilbert Burns","Dec. unánime · sep 2024"],["W","Kelvin Gastelum","Sum. R3 · dic 2023"]],"Control en el piso (3,6 derribos cada 15') y guillotina. Casi imposible de derribar (87%). Sus dos derrotas fueron por golpes."),
+  [50,50],"Cuotas: Bonfim -110 · Brady -110","Pelea estelar · 5 rounds"),
+ B("Paja femenino",
+  F("Tatiana Suarez","USA","#2 paja","13-1-0","tatiana-suarez",[5,8,10],[["W","Loopy Godinez","Sum. R2 · abr 2026"],["W","Amanda Lemos","Dec. unánime · sep 2025"],["L","Zhang Weili","Dec. unánime · título · feb 2025"],["W","Jéssica Andrade","Sum. R2 · ago 2023"],["W","Montana De La Rosa","Sum. R2 · feb 2023"]],"Luchadora de nivel mundial: 4,5 derribos cada 15 minutos. Su única derrota fue por el título."),
+  F("Virna Jandiroba","BRA","#3 paja","23-4-0","virna-jandiroba",[5,9,5],[["W","Tabatha Ricci","Dec. unánime · abr 2026"],["L","Mackenzie Dern","Dec. unánime · título · oct 2025"],["W","Yan Xiaonan","Dec. unánime · abr 2025"],["W","Amanda Lemos","Sum. R2 · jul 2024"],["W","Loopy Godinez","Dec. unánime · mar 2024"]],"Cinturón negro 2.º grado de BJJ, 14 sumisiones. Nunca la terminaron: sus 4 derrotas fueron por puntos."),
+  [62,38],"Estimación propia (lucha vs. BJJ) · sin cuotas publicadas","Coestelar")
+]],
+["Cartelera principal",false,[
+ B("Peso gallo",
+  F("Davey Grant","ENG","Sin ranking","18-8-0","davey-grant",[7,4,4],[["W","Adrián Luna Martinetti","Dec. unánime · abr 2026"],["L","Charles Jourdain","Sum. R1 · oct 2025"],["W","Da'Mon Blackshear","Dec. unánime · jul 2025"],["W","Ramon Taveras","Dec. unánime · dic 2024"],["L","Daniel Marcos","Dec. dividida · jul 2023"]],"Veterano de 40 años con mucho volumen (5,6 golpes/min) y cardio."),
+  F("Elijah Smith","USA","Sin ranking","10-1-0","elijah-smith",[6,7,7],[["W","SuYoung You","Sum. R2 · mar 2026"],["W","Toshiomi Kazama","TKO R1 · ago 2025"],["W","Vince Morales","Dec. unánime · feb 2025"],["W","Aaron Tau","Dec. unánime · Contender"]],"Tiene 23 años y está 4-0 desde el Contender. Lucha y control (3 derribos cada 15')."),
+  null,""),
+ B("Peso welter",
+  F("Seokhyeon Ko","KOR","Sin ranking","13-3-0","seokhyeon-ko",[5,6,7],[["L","Jean-Paul Lebosnoyani","Dec. unánime · jul 2026"],["W","Phil Rowe","Dec. unánime · nov 2025"],["W","Oban Elliott","Dec. unánime · jun 2025"]],"Judoca: derriba y controla, recibe poco (1,9/min). Le falta volumen de pie."),
+  F("Wellington Turman","BRA","Sin ranking","18-8-0","wellington-turman",[5,7,4],[["L","Jared Gooden","Sum. R2 · dic 2023"],["L","Randy Brown","Dec. unánime · jun 2023"],["L","Andre Petroski","Dec. unánime · nov 2022"],["W","Misha Cirkunov","Sum. R2 · feb 2022"],["W","Sam Alvey","Dec. dividida · ago 2021"]],"Jiu-jitsu. Vuelve a la UFC con 3 derrotas seguidas en su historial."),
+  null,""),
+ B("Peso mediano",
+  F("Mantas Kondratavičius","LTU","Sin ranking","9-1-0","mantas-kondratavicius",[7,6,6],[["W","Antonio Trocoli","Dec. unánime · mar 2026"]],"Golpea mucho y recibe poco (5 contra 1,3 por minuto). Defensa de derribo 92%."),
+  F("Andre Petroski","USA","Sin ranking","13-7-0","andre-petroski",[4,6,8],[["L","Cody Brundage","TKO R2 · may 2026"],["L","Cam Rowston","TKO R1 · sep 2025"],["L","Edmen Shahbazyan","Dec. unánime · jun 2025"],["W","Rodolfo Vieira","Dec. unánime · feb 2025"],["W","Dylan Budka","Dec. unánime · sep 2024"]],"Luchador sólido, pero viene de 3 derrotas, 2 por KO."),
+  null,""),
+ B("Semipesado",
+  F("Billy Elekana","USA","Sin ranking","10-2-0","billy-elekana",[5,7,5],[["W","Junior Tafa","Sum. R2 · ene 2026"],["W","Kevin Christian","Sum. R1 · nov 2025"],["W","Ibo Aslan","Dec. unánime · jul 2025"],["L","Bogdan Guskov","Sum. R2 · ene 2025"]],"Racha de 3, con 2 sumisiones seguidas."),
+  F("Lucas Fernando","BRA","Sin ranking","14-3-0","lucas-fernando",[7,4,4],[["W","Rafael Tobias","TKO R3 · ago 2026"]],"Striker que ganó por KO en su debut en la UFC."),
+  null,"")
+]],
+["Preliminares",false,[
+ B("Peso pesado",
+  F("Gabriel Lorenço","BRA","Debut UFC","8-1-0","gabriel-lorenco",[8,3,3],[["W","Charlie Cleveland","TKO R1 · Contender · sep 2026"]],"Ocho triunfos seguidos, casi todos por KO. Rápido para un pesado."),
+  F("Alvin Hines","USA","Sin ranking","7-2-0","alvin-hines",[6,3,3],[["L","RJ Harris","TKO R1 · jul 2026"],["L","Jhonata Diniz","Dec. unánime · jun 2025"]],"0-2 en la UFC y recibe mucho castigo (7,6 golpes/min)."),
+  null,""),
+ B("Mosca femenino",
+  F("Karine Silva","BRA","#11 mosca","19-7-0","karine-silva",[4,8,5],[["L","Jasmine Jasudavicius","Dec. unánime · abr 2026"],["L","Maycee Barber","Dec. unánime · dic 2025"],["W","Dione Barbosa","Dec. unánime · ago 2025"],["L","Viviane Araújo","Dec. unánime · nov 2024"],["W","Ariane da Silva","Dec. unánime · abr 2024"]],"Jiu-jitsu ofensivo (1,6 intentos de sumisión cada 15'). Viene de 2 derrotas."),
+  F("Gabriella Fernandes","BRA","#14 mosca","11-4-0","gabriella-fernandes",[6,4,4],[["L","Casey O'Neill","TKO R1 · mar 2026"],["W","Julija Stoliarenko","Dec. unánime · ago 2025"],["W","Wang Cong","Sum. R2 · nov 2024"],["W","Carli Judice","Dec. dividida · jun 2024"],["L","Tereza Bledá","Dec. unánime · jun 2023"]],"Striker, aunque recibe mucho (5,3 golpes/min)."),
+  null,""),
+ B("Peso pluma",
+  F("Jose Delano","BRA","Sin ranking","17-3-0","jose-delano",[8,3,3],[["W","Robert Ruchala","Dec. unánime · abr 2026"]],"Volumen altísimo: 8,4 golpes por minuto en su debut."),
+  F("Murtazali Magomedov","KGZ","Sin ranking","11-0-0","murtazali-magomedov",[6,8,8],[["W","Melsik Baghdasaryan","Sum. R1 (twister) · jun 2026"],["W","Brahyam Zurcher","TKO R1 · Contender · sep 2025"]],"Invicto. Ganó su debut con una 'twister', una sumisión rarísima. Mucha lucha."),
+  null,""),
+ B("Peso pluma",
+  F("Keiichiro Nakamura","JPN","Sin ranking","8-1-0","keiichiro-nakamura",[7,3,4],[["W","Sebastian Szalay","TKO R3 · ene 2026"],["W","Kaiwen Li","Dec. unánime · ago 2025"],["W","Eoh Jin Park","KO R2 · may 2025"]],"Striker, 3-0 en la UFC con 2 KO."),
+  F("Ollie Schmid","NZL","Sin ranking","4-3-0","ollie-schmid",[5,3,3],[["L","Marwan Rahiki","TKO R1 · may 2026"]],"Récord parejo y viene de perder por KO en su debut."),
+  null,""),
+ B("Peso pluma",
+  F("Austin Bashi","USA","Sin ranking","14-2-0","austin-bashi",[3,7,8],[["L","Delgado","Dec. unánime · jul 2026"],["W","John Yannis","Sum. R1 · ago 2025"],["L","Christian Rodriguez","Dec. unánime · ene 2025"]],"Luchador de 24 años: 6 derribos cada 15 minutos. Viene de perder."),
+  F("Lucas Brennan","USA","Sin ranking","11-3-0","lucas-brennan",[3,7,5],[["L","Francis Marshall","Dec. unánime · abr 2026"]],"Grappler; perdió su debut por puntos."),
+  null,""),
+ B("Gallo femenino",
+  F("Priscila Cachoeira","BRA","Sin ranking","13-9-0","priscila-cachoeira",[6,2,3],[["L","Chelsea Chandler","Sum. R1 · jun 2026"],["L","Klaudia Syguła","Dec. unánime · feb 2026"],["L","Joselyne Edwards","TKO R1 · ago 2025"],["W","Josiane Nunes","KO R1 · mar 2025"],["L","Jasmine Jasudavicius","Sum. R3 · ene 2024"]],"Brava y pegadora, pero viene de 3 derrotas y recibe 7,5 golpes/min."),
+  F("Nina Milošević","SRB","Sin ranking","9-1-0","nina-milosevic",[7,4,4],[["W","Hailey Cowan","TKO R1 · ago 2026"]],"Ganó su debut por KO en Belgrado."),
+  null,""),
+ B("Peso welter",
+  F("Jonny Parsons","USA","Sin ranking","9-3-0","jonny-parsons",[6,4,4],[["W","Danny Roberts","TKO R2 · jul 2023"]],"Muay thai. Vuelve después de una larga inactividad."),
+  F("José Souza","BRA","Sin ranking","9-1-0","jose-souza",[6,6,4],[["W","Ding Meng","Dec. dividida · may 2026"]],"Jiu-jitsu, 24 años. Ganó su debut en fallo dividido."),
+  null,"")
+]]
+]},
+
+{id:"ufc334",short:"14 NOV",name:"UFC 334: Gane vs Hokit",kind:"Evento numerado",venue:"Madison Square Garden, Nueva York",start:"2026-11-14T23:00:00-03:00",times:"Prelims temprano 19:00 · Prelims 21:00 · Estelar 23:00",tv:"Paramount+ / Fight Pass",
+groups:[
+["Peleas destacadas",true,[
+ B("Peso pesado",
+  F("Ciryl Gane","FRA","Campeón","14-2-0","ciryl-gane",[10,5,4],[["W","Alex Pereira","TKO R2 · título interino · jun 2026"],["N","Tom Aspinall","Sin resultado (dedo en el ojo) · oct 2025"],["W","Alexander Volkov","Dec. dividida · dic 2024"],["W","Serghei Spivac","TKO R2 · sep 2023"],["L","Jon Jones","Sum. R1 · título · mar 2023"]],"Muay thai con movilidad de peso liviano: 62% de precisión y recibe solo 2,3 golpes/min. Su punto flojo es frenar derribos (47%)."),
+  F("Josh Hokit","USA","#4 pesado","10-0-0","josh-hokit",[8,6,9],[["W","Derrick Lewis","TKO R2 · jun 2026"],["W","Curtis Blaydes","Dec. unánime · abr 2026"],["W","Denzel Freeman","TKO R1 · ene 2026"],["W","Max Gimenis","TKO R1 · nov 2025"],["W","Guilherme Uriel","TKO R2 · Contender Series"]],"Ex luchador All-American y ex jugador de la NFL. Presión enorme: 9,3 golpes/min y una caída cada 12 minutos. Nunca peleó más de 3 rounds."),
+  [67,33],"Cuotas: Gane -235 · Hokit +195","Título mundial · 5 rounds"),
+ B("Gallo femenino",
+  F("Kayla Harrison","USA","Campeona","19-1-0","kayla-harrison",[5,10,9],[["W","Julianna Peña","Sum. R2 · título · jun 2025"],["W","Ketlen Vieira","Dec. unánime · oct 2024"],["W","Holly Holm","Sum. R2 · abr 2024"],["W","Aspen Ladd","TKO R1 · PFL"],["L","Larissa Pacheco","Dec. unánime · PFL"]],"Doble oro olímpico en judo: derriba, controla y castiga. En la UFC recibe apenas 1,1 golpes/min. Vuelve de una operación de cervicales."),
+  F("Amanda Nunes","BRA","Ex campeona · Salón de la Fama","23-5-0","amanda-nunes",[9,7,6],[["W","Irene Aldana","Dec. unánime (5R) · jun 2023"],["W","Julianna Peña","Dec. unánime (5R) · jul 2022"],["L","Julianna Peña","Sum. R2 · dic 2021"],["W","Megan Anderson","Sum. R1 · mar 2021"],["W","Felicia Spencer","Dec. unánime · jun 2020"]],"La mejor de la historia femenina: 13 KO y doble campeona. Vuelve después de más de 3 años retirada."),
+  [65,35],"Cuotas: Harrison -210 · Nunes +175","Título mundial · 5 rounds")
+]],
+["Cartelera principal",false,[
+ B("Peso mediano",
+  F("Caio Borralho","BRA","#5 mediano","18-2-0","caio-borralho",[7,7,6],[["W","Reinier de Ridder","Dec. unánime · mar 2026"],["L","Nassourdine Imavov","Dec. unánime (5R) · sep 2025"],["W","Jared Cannonier","Dec. unánime (5R) · ago 2024"],["W","Paul Craig","KO R2 · may 2024"],["W","Abus Magomedov","Dec. unánime · nov 2023"]],"Muy completo y ordenado: judo, BJJ y muay thai. Gana la mitad de sus peleas por puntos."),
+  F("Yousri Belgaroui","NED","Sin ranking","11-3-0","yousri-belgaroui",[9,3,3],[["W","Djorden Santos","TKO R1 · sep 2026"],["W","Mansur Abdul-Malik","TKO R3 · mar 2026"],["W","Azamat Bekoev","TKO R3 · oct 2025"],["W","Taiga Iwasaki","TKO R3 · Contender Series"]],"Ex kickboxer de Glory (le ganó una vez a Pereira). Mide 1,98 m y conecta el 63%. Nunca lo terminaron."),
+  [63,37],"Modelo Combat Edge · fans Tapology 49/51"),
+ B("Peso welter",
+  F("Uroš Medić","SRB","#12 welter","14-3-0","uros-medic",[9,3,3],[["W","Daniel Rodriguez","TKO R1 · ago 2026"],["W","Geoff Neal","TKO R1 · feb 2026"],["W","Muslim Salikhov","TKO R1 · nov 2025"],["W","Gilbert Urbina","TKO R1 · ago 2025"],["L","Punahele Soriano","TKO R1 · ene 2025"]],"Cuatro KO seguidos, todos en el primer round."),
+  F("Kevin Holland","USA","Sin ranking","29-15-0","kevin-holland",[7,6,4],[["W","Randy Brown","Dec. unánime · abr 2026"],["L","Mike Malott","Dec. unánime · oct 2025"],["L","Daniel Rodriguez","Dec. unánime · jul 2025"],["W","Vicente Luque","Sum. R2 · jun 2025"],["W","Gunnar Nelson","Dec. unánime · mar 2025"]],"Versátil y con muchísima experiencia; peligroso con sumisiones sorpresa."),
+  [58,42],"Modelo Combat Edge · sin cuotas publicadas"),
+ B("Peso mosca",
+  F("Bilal Hasan","IDN","Sin ranking","10-0-0","bilal-hasan",[8,4,5],[["W","Nilson Rojas","TKO R2 · ago 2026"]],"Invicto. Tiró 9 golpes por minuto en su debut."),
+  F("Luis Gurule","USA","Sin ranking","11-3-0","luis-gurule",[7,3,4],[["L","Rei Tsuruya","Sum. R1 · may 2026"],["W","Daniel Barez","Dec. unánime · may 2026"],["L","Alden Coria","Dec. unánime · feb 2026"],["L","Jesus Aguilar","Dec. unánime · sep 2025"],["L","Ode' Osbourne","TKO R2 · abr 2025"]],"Mucho volumen, pero ganó 1 de sus últimas 5."),
+  [83,17],"Modelo Combat Edge · sin cuotas publicadas")
+]],
+["Preliminares",false,[
+ B("Peso welter",
+  F("Stephen Thompson","USA","Sin ranking","17-9-1","stephen-thompson",[8,2,2],[["L","Gabriel Bonfim","Dec. dividida · jul 2025"],["L","Joaquin Buckley","TKO R3 · oct 2024"],["L","Shavkat Rakhmonov","Sum. R2 · dic 2023"],["W","Kevin Holland","TKO R4 · dic 2022"],["L","Belal Muhammad","Dec. unánime · dic 2021"]],"Karateca legendario, 42 años. Pelea de retiro; viene de 3 derrotas."),
+  F("Charles Radtke","USA","Sin ranking","12-5-0","charles-radtke",[5,6,6],[["W","Francisco Prado","Dec. unánime · abr 2026"],["W","Daniel Frunza","Sum. R3 · nov 2025"],["L","Mike Malott","TKO R2 · may 2025"],["W","Matthew Semelsberger","TKO R1 · nov 2024"],["L","Carlos Prates","KO R1 · jun 2024"]],"Cinturón negro de BJJ que busca derribar (4 cada 15'). Racha de 2."),
+  [47,53],"Modelo Combat Edge · sin cuotas publicadas"),
+ B("Peso ligero",
+  F("Drew Dober","USA","Sin ranking","29-15-0","drew-dober",[8,3,4],[["W","Michael Johnson","TKO R2 · mar 2026"],["W","Kyle Prepolec","TKO R3 · oct 2025"],["L","Manuel Torres","TKO R1 · mar 2025"],["L","Jean Silva","TKO R3 · jul 2024"],["L","Renato Moicano","Dec. unánime · feb 2024"]],"Uno de los mayores noqueadores del peso ligero. Viene de 2 KO seguidos."),
+  F("Chris Duncan","SCO","Sin ranking","15-3-0","chris-duncan",[6,7,5],[["L","Renato Moicano","Sum. R2 · abr 2026"],["W","Terrance McKinney","Sum. R1 · dic 2025"],["W","Mateusz Rębecki","Dec. unánime · ago 2025"],["W","Jordan Vucenic","Sum. R2 · mar 2025"],["W","Bolaji Oki","Sum. R1 · sep 2024"]],"Guillotina y anaconda: 4 sumisiones en sus últimas 5 victorias."),
+  [33,67],"Modelo Combat Edge · sin cuotas publicadas"),
+ B("Peso ligero",
+  F("Jim Miller","USA","Sin ranking","39-19-0","jim-miller",[4,8,4],[["W","Jared Gordon","Sum. R1 · may 2026"],["L","Chase Hooper","Dec. unánime · abr 2025"],["W","Damon Jackson","Sum. R1 · nov 2024"],["L","Bobby Green","Dec. unánime · abr 2024"],["W","Gabriel Benítez","Sum. R3 · ene 2024"]],"Leyenda de 42 años, el que más peleas tiene en la UFC. Peligrosísimo con la guillotina."),
+  F("Terrance McKinney","USA","Sin ranking","18-9-0","terrance-mckinney",[8,6,6],[["L","King Green","TKO R1 · jul 2026"],["W","Kyle Nelson","TKO R1 · mar 2026"],["L","Chris Duncan","Sum. R1 · dic 2025"],["W","Viacheslav Borshchev","Sum. R1 · jun 2025"],["W","Damir Hadžović","TKO R1 · feb 2025"]],"Explosivo: sus últimas 5 peleas terminaron en el primer round."),
+  [36,64],"Modelo Combat Edge · sin cuotas publicadas"),
+ B("Peso mediano",
+  F("Donte Johnson","USA","Sin ranking","9-0-0","donte-johnson",[6,6,6],[["W","Eric McConico","TKO R1 · ago 2026"],["W","Cody Brundage","Dec. unánime · mar 2026"],["W","Sedriques Dumas","Sum. R2 · nov 2025"],["W","Darion Abbey","TKO R1 · Contender"]],"Invicto y completo; recibe poco (2,1 golpes/min)."),
+  F("Baisangur Susurkaev","RUS","Sin ranking","12-0-0","baisangur-susurkaev",[7,6,6],[["W","Djorden Santos","Sum. R3 · may 2026"],["W","Eric McConico","TKO R3 · nov 2025"],["W","Eric Nolan","Sum. R2 · ago 2025"],["W","Murtaza Talha","TKO R1 · Contender"]],"Checheno invicto de 25 años. Termina las peleas con golpes o mata león."),
+  [37,63],"Modelo Combat Edge · sin cuotas publicadas")
+]],
+["Preliminares temprano",false,[
+ B("Gallo femenino",
+  F("Macy Chiasson","USA","#9 gallo","11-6-0","macy-chiasson",[6,5,5],[["L","Ailín Pérez","Dec. unánime · feb 2026"],["L","Yana Santos","Dec. unánime · oct 2025"],["L","Ketlen Vieira","Dec. unánime · may 2025"],["W","Mayra Bueno Silva","TKO R2 · jun 2024"],["W","Pannie Kianzad","Sum. R1 · mar 2024"]],"Alta para la categoría, pero viene de 3 derrotas por puntos."),
+  F("Bia Mesquita","BRA","#11 gallo","8-0-0","bia-mesquita",[6,10,6],[["W","Melissa Mullins","Sum. R1 · jun 2026"],["W","Montse Rendón","Sum. R1 · mar 2026"],["W","Irina Alekseeva","Sum. R2 · oct 2025"]],"Multicampeona mundial de BJJ e invicta: 3 sumisiones en 3 peleas en la UFC."),
+  [34,66],"Modelo Combat Edge · sin cuotas publicadas"),
+ B("Peso gallo",
+  F("Adrian Yanez","USA","Sin ranking","18-6-1","adrian-yanez",[8,2,3],[["W","Cody Garbrandt","TKO R1 · jul 2026"],["N","Ricky Simon","Empate · mar 2026"],["L","Daniel Marcos","Dec. dividida · dic 2024"],["W","Vinicius Salvador","TKO R1 · may 2024"],["L","Jonathan Martinez","TKO R2 · oct 2023"]],"Boxeador con 6 golpes/min. Viene de noquear a Garbrandt."),
+  F("Juan Díaz","PER","Sin ranking","16-1-1","juan-diaz",[5,7,8],[["W","Malcolm Wellmaker","Sum. R2 · may 2026"]],"Luchador peruano: 5,5 derribos cada 15'. Ganó su debut por mata león."),
+  [37,63],"Modelo Combat Edge · sin cuotas publicadas"),
+ B("Peso ligero",
+  F("Nazim Sadykhov","AZE","Sin ranking","11-3-1","nazim-sadykhov",[6,5,5],[["L","Matheus Camilo","TKO R1 · jun 2026"],["L","Farès Ziam","TKO R2 · dic 2025"],["W","Nikolas Motta","TKO R2 · jun 2025"],["W","Ismael Bonfim","TKO R1 · feb 2025"],["N","Viacheslav Borshchev","Empate · nov 2023"]],"Agresivo de pie, pero viene de 2 derrotas por KO."),
+  F("Jefferson Nascimento","BRA","Sin ranking","13-1-0","jefferson-nascimento",[5,4,4],[["L","Tahir Abdullayev","TKO R3 · jun 2026"]],"Perdió su debut por KO en el tercer round."),
+  [51,49],"Modelo Combat Edge · sin cuotas publicadas")
+]]
+]},
+
+{id:"nov21",short:"21 NOV",name:"Procházka vs Stirling",kind:"UFC Fight Night",venue:"ABHA Arena, Doha (Qatar)",start:"2026-11-21T15:00:00-03:00",times:"Preliminares 12:00 · Estelar 15:00",tv:"Paramount+",
+groups:[
+["Peleas destacadas",true,[
+ B("Semipesado",
+  F("Jiří Procházka","CZE","#2 semipesado","32-6-1","jiri-prochazka",[9,5,3],[["L","Carlos Ulberg","KO R1 · título · abr 2026"],["W","Khalil Rountree Jr.","KO R3 · oct 2025"],["W","Jamahal Hill","TKO R3 · ene 2025"],["L","Alex Pereira","KO R2 · título · jun 2024"],["W","Aleksandar Rakić","TKO R2 · abr 2024"]],"Caos ofensivo: 28 KO y 5,6 golpes/min. El precio: recibe 5,7/min y defiende solo el 45%."),
+  F("Navajo Stirling","NZL","#5 semipesado","11-0-0","navajo-stirling",[9,3,4],[["W","Jan Błachowicz","TKO R1 · ago 2026"],["W","Ion Cuțelabă","TKO R2 · jun 2026"],["W","Bruno Lopes","TKO R2 · mar 2026"],["W","Rodolfo Bellato","Dec. unánime · sep 2025"],["W","Ivan Erslan","Dec. unánime · may 2025"]],"Kickboxer de City Kickboxing: 6,5 golpes/min recibiendo apenas 2,6. Viene de 3 KO seguidos."),
+  [55,45],"Cuotas iniciales: Procházka ~1.67 · Stirling ~2.05","Pelea estelar · 5 rounds"),
+ B("Peso pluma",
+  F("Aljamain Sterling","USA","#4 pluma","26-5-0","aljamain-sterling",[6,9,8],[["W","Youssef Zalal","Dec. unánime (5R) · abr 2026"],["W","Brian Ortega","Dec. unánime (5R) · ago 2025"],["L","Movsar Evloev","Dec. unánime · dic 2024"],["W","Calvin Kattar","Dec. unánime · abr 2024"],["L","Sean O'Malley","TKO R2 · título · ago 2023"]],"Ex campeón gallo. Busca la espalda y el mata león; gana casi siempre por puntos. Tiene 37 años."),
+  F("Kevin Vallejos","ARG","#9 pluma","17-1-0","kevin-vallejos",[9,4,4],[["W","Josh Emmett","TKO R1 · mar 2026"],["W","Giga Chikadze","KO R2 · dic 2025"],["W","Danny Silva","Dec. unánime · ago 2025"],["W","SeungWoo Choi","TKO R1 · mar 2025"],["W","Cameron Teague","TKO R1 · Contender Series"]],"“El Chino” de Mar del Plata: 13 KO y 1,65 caídas cada 15'. Clave contra Sterling: defiende el 85% de los derribos. 24 años."),
+  [50,50],"Sin cuotas · los modelos están divididos","Coestelar · argentino en la cartelera")
+]],
+["Resto de la cartelera",false,[
+ B("Peso ligero",
+  F("Dan Hooker","NZL","#13 ligero","24-15-0","dan-hooker",[8,5,4],[["L","Salahdine Parnasse","TKO R1 · sep 2026"],["L","Benoît Saint Denis","TKO R2 · ene 2026"],["L","Arman Tsarukyan","Sum. R2 · nov 2025"],["W","Mateusz Gamrot","Dec. dividida · ago 2024"],["W","Jalin Turner","Dec. dividida · jul 2023"]],"Veterano duro y ofensivo, pero viene de 3 derrotas seguidas."),
+  F("Brian Ortega","USA","Sin ranking","16-5-0","brian-ortega",[6,9,5],[["L","Aljamain Sterling","Dec. unánime (5R) · ago 2025"],["L","Diego Lopes","Dec. unánime · sep 2024"],["W","Yair Rodríguez","Sum. R3 · feb 2024"],["L","Yair Rodríguez","TKO R1 (lesión) · jul 2022"],["L","Alexander Volkanovski","Dec. unánime · título · sep 2021"]],"Jiu-jitsu de élite y guillotina temible. Sube a ligero después de 2 derrotas."),
+  null,""),
+ B("Peso mediano",
+  F("Jared Cannonier","USA","#11 mediano","18-10-0","jared-cannonier",[7,3,4],[["L","Christian Leroy Duncan","Dec. unánime · jul 2026"],["L","Michael Page","Dec. unánime · ago 2025"],["W","Gregory Rodrigues","TKO R4 · feb 2025"],["L","Caio Borralho","Dec. unánime (5R) · ago 2024"],["L","Nassourdine Imavov","TKO R4 · jun 2024"]],"Pegada pesada a los 42 años. Ganó 1 de sus últimas 5."),
+  F("Ikram Aliskerov","RUS","#13 mediano","18-2-0","ikram-aliskerov",[7,7,7],[["W","Brunno Ferreira","Dec. unánime · jun 2026"],["W","JunYong Park","Dec. unánime · oct 2025"],["W","André Muniz","TKO R1 · abr 2025"],["L","Robert Whittaker","KO R1 · jun 2024"],["W","Warlley Alves","TKO R1 · oct 2023"]],"Sambista: golpea, derriba (3,8 cada 15') y nunca lo llevaron al piso."),
+  null,""),
+ B("Peso pesado",
+  F("Shamil Gaziev","BHR","Sin ranking","15-3-0","shamil-gaziev",[5,4,5],[["W","Kennedy Nzechukwu","TKO R1 · ago 2026"],["L","Brando Peričić","TKO R2 · may 2026"],["L","Waldo Cortes Acosta","TKO R1 · nov 2025"],["W","Thomas Petersen","KO R1 · feb 2025"],["W","Don'Tale Mayes","Dec. unánime · ago 2024"]],"Pesado de pegada, aunque le cuesta absorber castigo."),
+  F("Tallison Teixeira","BRA","Sin ranking","9-2-0","tallison-teixeira",[6,3,5],[["L","Sergei Pavlovich","TKO R1 · may 2026"],["W","Tai Tuivasa","Dec. unánime · ene 2026"],["L","Derrick Lewis","TKO R1 · jul 2025"]],"Pesado de 26 años y 2,01 m. Perdió 2 de 3, ambas por KO."),
+  null,""),
+ B("Peso welter",
+  F("Jake Matthews","AUS","Sin ranking","23-8-0","jake-matthews",[5,6,6],[["W","Carlston Harris","Dec. unánime · may 2026"],["L","Neil Magny","Sum. R3 · sep 2025"],["W","Chidi Njokuani","Sum. R1 · jul 2025"],["W","Francisco Prado","Dec. unánime · feb 2025"],["W","Phil Rowe","Dec. unánime · jun 2024"]],"Veterano completo y sólido en la lucha. Ganó 4 de sus últimas 5."),
+  F("Tahir Abdullayev","AZE","Sin ranking","20-3-0","tahir-abdullayev",[5,5,6],[["W","Jefferson Nascimento","TKO R3 · jun 2026"]],"Entrena en Team Alpha Male. Ganó su debut por KO."),
+  null,""),
+ B("Peso gallo",
+  F("Aleksandre Topuria","GEO","Sin ranking","7-1-0","aleksandre-topuria",[6,4,5],[["W","Bekzat Almakhan","Dec. unánime · nov 2025"],["W","Colby Thicknesse","Dec. unánime · feb 2025"]],"Hermano de Ilia Topuria. Boxeo prolijo, 2-0 en la UFC."),
+  F("Santiago Luna","MEX","Sin ranking","8-1-0","santiago-luna",[6,5,5],[["L","Bryce Mitchell","Sum. R3 · jun 2026"],["W","Angel Pacheco","Dec. unánime · feb 2026"],["W","Quang Le","TKO R1 · sep 2025"]],"Mexicano de 22 años. Perdió por primera vez con Bryce Mitchell."),
+  null,""),
+ B("Peso mosca",
+  F("Asu Almabayev","KAZ","#7 mosca","24-3-0","asu-almabayev",[4,8,8],[["W","Charles Johnson","Sum. R3 · jun 2026"],["W","Alex Perez","Sum. R3 · nov 2025"],["W","Jose Ochoa","Dec. unánime · jul 2025"],["L","Manel Kape","TKO R3 · mar 2025"],["W","Matheus Nicolau","Dec. unánime · oct 2024"]],"Lucha y control asfixiante (4,7 derribos cada 15'). Racha de 3."),
+  F("Kyoji Horiguchi","JPN","#5 mosca","36-6-0","kyoji-horiguchi",[8,5,5],[["L","Manel Kape","TKO R3 · jun 2026"],["W","Amir Albazi","Dec. unánime · feb 2026"],["W","Tagir Ulanbekov","Sum. R3 · nov 2025"],["W","Ali Bagautinov","Dec. unánime · nov 2016"],["W","Neil Seery","Dec. unánime · may 2016"]],"Ex campeón de Bellator y RIZIN, karateca muy veloz. Volvió a la UFC en 2025."),
+  null,""),
+ B("Peso mosca",
+  F("Amir Albazi","IRQ","#9 mosca","17-3-0","amir-albazi",[5,7,5],[["L","Kyoji Horiguchi","Dec. unánime · feb 2026"],["L","Brandon Moreno","Dec. unánime (5R) · nov 2024"],["W","Kai Kara-France","Dec. dividida · jun 2023"],["W","Alessandro Costa","KO R3 · dic 2022"],["W","Francisco Figueiredo","Sum. R1 · ago 2022"]],"Jiu-jitsu. Viene de 2 derrotas y ya le ganó a Costa en 2022."),
+  F("Alessandro Costa","BRA","Sin ranking","17-5-0","alessandro-costa",[6,6,4],[["W","Cody Durden","Sum. R2 · jul 2026"],["W","Matt Schnell","TKO R1 · jun 2026"],["W","Stewart Nicoll","TKO R2 · abr 2026"],["L","Alden Coria","TKO R3 · sep 2025"],["W","Kevin Borjas","TKO R2 · may 2024"]],"Racha de 3 en 2026. Busca la revancha con Albazi."),
+  null,"")
+]]
+]},
+
+{id:"ufc335",short:"12 DIC",name:"UFC 335: Oliveira vs Lopes",kind:"Evento numerado",venue:"T-Mobile Arena, Las Vegas",start:"2026-12-12T23:00:00-03:00",times:"Prelims temprano 19:00 · Prelims 21:00 · Estelar 23:00",tv:"Paramount+ / Fight Pass",
+groups:[
+["Peleas destacadas",true,[
+ B("Peso ligero",
+  F("Charles Oliveira","BRA","#3 ligero · campeón BMF","37-11-0","charles-oliveira",[7,10,6],[["W","Max Holloway","Dec. unánime · título BMF · mar 2026"],["W","Mateusz Gamrot","Sum. R2 · oct 2025"],["L","Ilia Topuria","KO R1 · título · jun 2025"],["W","Michael Chandler","Dec. unánime (5R) · nov 2024"],["L","Arman Tsarukyan","Dec. dividida · abr 2024"]],"Récord histórico de sumisiones (17) y de finalizaciones en la UFC. Peligroso desde cualquier posición en el piso."),
+  F("Diego Lopes","BRA","Debut en ligero","28-8-0","diego-lopes",[8,8,4],[["W","Steve Garcia","KO R2 · jun 2026"],["L","Alexander Volkanovski","Dec. unánime · título · ene 2026"],["W","Jean Silva","TKO R2 · sep 2025"],["L","Alexander Volkanovski","Dec. unánime · título · abr 2025"],["W","Brian Ortega","Dec. unánime · sep 2024"]],"Agresivo y peligroso de pie y en el piso: 12 KO y 12 sumisiones. Sus dos derrotas recientes fueron con Volkanovski por el título."),
+  [57,43],"Cuotas: Oliveira -150 · Lopes +125","Cinturón BMF · 5 rounds"),
+ B("Peso pesado",
+  F("Sergei Pavlovich","RUS","#3 pesado","21-3-0","sergei-pavlovich",[9,2,4],[["W","Tallison Teixeira","TKO R1 · may 2026"],["W","Waldo Cortes Acosta","Dec. unánime · ago 2025"],["W","Jairzinho Rozenstruik","Dec. unánime · feb 2025"],["L","Alexander Volkov","Dec. unánime · jun 2024"],["L","Tom Aspinall","KO R1 · título int. · nov 2023"]],"Pegada temible: sus 16 KO llegaron en el primer round, 8 de ellos en 1:15 o menos. 2,13 m de alcance."),
+  F("Alex Pereira","BRA","Ex campeón en 2 categorías","13-4-0","alex-pereira",[10,3,3],[["L","Ciryl Gane","TKO R2 · título interino · jun 2026"],["W","Magomed Ankalaev","TKO R1 · título · oct 2025"],["L","Magomed Ankalaev","Dec. unánime · título · mar 2025"],["W","Khalil Rountree Jr.","TKO R4 · título · oct 2024"],["W","Jiří Procházka","KO R2 · título · jun 2024"]],"Kickboxer de élite con 11 KO en la UFC. Viene de perder con Gane en su primera pelea en pesado."),
+  [63,37],"Cuotas: Pavlovich -190 · Pereira +160","Coestelar")
+]],
+["Cartelera principal",false,[
+ B("Peso mediano",
+  F("Joe Pyfer","USA","#6 mediano","16-3-0","joe-pyfer",[8,7,5],[["W","Israel Adesanya","TKO R2 · mar 2026"],["W","Abus Magomedov","Sum. R2 · oct 2025"],["W","Kelvin Gastelum","Dec. unánime · jun 2025"],["W","Marc-André Barriault","KO R1 · jun 2024"],["L","Jack Hermansson","Dec. unánime (5R) · feb 2024"]],"Mano pesada (más de una caída cada 15') y cinturón negro de BJJ. Viene de noquear a Adesanya."),
+  F("Bo Nickal","USA","#14 mediano","9-1-0","bo-nickal",[6,8,10],[["W","Kyle Daukaus","TKO R1 · jun 2026"],["W","Rodolfo Vieira","KO R3 · nov 2025"],["L","Reinier de Ridder","TKO R2 · may 2025"],["W","Paul Craig","Dec. unánime · nov 2024"],["W","Cody Brundage","Sum. R2 · abr 2024"]],"Tres veces campeón universitario de lucha (NCAA). Su golpeo viene mejorando: 2 KO seguidos."),
+  [63,37],"Cuotas: Pyfer -192 · Nickal +160"),
+ B("Peso mosca",
+  F("Brandon Moreno","MEX","#8 mosca","24-10-2","brandon-moreno",[7,7,5],[["W","Joseph Morales","Dec. unánime · sep 2026"],["L","Lone'er Kavanagh","Dec. unánime (5R) · feb 2026"],["L","Tatsuro Taira","TKO R2 · dic 2025"],["W","Steve Erceg","Dec. unánime (5R) · mar 2025"],["W","Amir Albazi","Dec. unánime (5R) · nov 2024"]],"Ex campeón mosca. Presión, cardio y mucha experiencia en peleas a 5 rounds."),
+  F("Charles Johnson","USA","Sin ranking","20-9-0","charles-johnson",[7,4,4],[["W","Eduardo Chapolin","Sum. R3 · ago 2026"],["L","Asu Almabayev","Sum. R3 · jun 2026"],["W","Bruno Silva","Dec. dividida · mar 2026"],["L","Alex Perez","TKO R1 · ene 2026"],["W","Lone'er Kavanagh","TKO R2 · ago 2025"]],"Activo y con volumen; le cuesta defender en el piso."),
+  null,""),
+ B("Semipesado",
+  F("Quentin Pasley","USA","Debut UFC","Invicto","quentin-pasley",[7,4,6],[["W","Arlind Berisha","KO R1 (codazos) · Contender · 2026"]],"Ganó su contrato en el Contender por KO. Todas sus victorias llegaron en el primer round."),
+  F("Junior Tafa","AUS","Sin ranking","7-6-0","junior-tafa",[7,2,3],[["L","Iwo Baraniewski","TKO R1 · jun 2026"],["W","Kevin Christian","TKO R1 · may 2026"],["L","Billy Elekana","Sum. R2 · ene 2026"],["L","Tuco Tokkos","Sum. R2 · jul 2025"],["W","Sean Sharaf","TKO R2 · oct 2024"]],"Kickboxer pegador, flojo en el piso: 2 derrotas por sumisión en el último año."),
+  null,"")
+]]
+]}
+];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const SK=["Striking","Grappling","Lucha"];
+const L=x=>x==="N"?"–":x==="W"?"G":"P";
+const dots=(f,rev)=>{const d=f.slice(0,5).map(x=>`<span class="dot ${x[0]}" title="${esc(x[1])}">${L(x[0])}</span>`);return (rev?d.reverse():d).join("")};
+
+function side(f,s){return `<div class="side ${s}"><div class="fname">${esc(f.n)}</div><div class="sub">${esc(f.c)} · ${esc(f.rk)}</div><div class="rec">${esc(f.rec)}</div><div class="form" aria-label="Últimas peleas">${dots(f.f,s==="b")}</div></div>`}
+function corner(f,s){
+  const sk=f.s.map((v,i)=>`<div class="sk"><span class="lbl">${SK[i]}</span><span class="bar"><i style="width:${v*10}%"></i></span></div>`).join("");
+  const h=f.f.length?f.f.map(x=>`<li><span class="dot ${x[0]}">${L(x[0])}</span><span>${esc(x[1])}<span class="m">${esc(x[2])}</span></span></li>`).join(""):`<li class="none">Sin peleas registradas</li>`;
+  return `<div class="corner ${s}"><div class="skills">${sk}</div><div class="edge">${esc(f.e)}</div><ol class="hist">${h}</ol><a class="prof" href="https://www.ufc.com/athlete/${f.u}" target="_blank" rel="noopener">Perfil y foto en UFC.com ↗</a></div>`;
+}
+let k=0;
+function fight(b,open){
+  const id="d"+(k++);
+  const pr=b.p?`<div class="prob"><div class="prob-row"><span class="pr">${b.p[0]}%</span><span class="pb">${b.p[1]}%</span></div><div class="split" role="img" aria-label="${esc(b.r.n)} ${b.p[0]} por ciento, ${esc(b.b.n)} ${b.p[1]} por ciento"><div class="r" style="width:${b.p[0]}%"></div><div class="b" style="width:${b.p[1]}%"></div></div><div class="src">${esc(b.src)}</div></div>`
+    :`<div class="noodds">Sin cuotas publicadas todavía</div>`;
+  return `<article class="fight">
+    <div class="fight-top"><span>${esc(b.wc)}</span>${b.tag?`<span class="tag">${esc(b.tag)}</span>`:""}</div>
+    <div class="sum">${side(b.r,"r")}<span class="vs">vs</span>${side(b.b,"b")}</div>
+    ${pr}
+    <button class="more" type="button" aria-expanded="${open}" aria-controls="${id}">${open?"Ocultar ficha":"Ver ficha completa"}</button>
+    <div class="detail" id="${id}" ${open?"":"hidden"}><div class="tape">${corner(b.r,"r")}${corner(b.b,"b")}</div></div>
+  </article>`;
+}
+const fmtDate=d=>d.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",timeZone:"America/Argentina/Buenos_Aires"});
+
+function render(id){
+  const e=EV.find(x=>x.id===id)||EV[0];
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.id===e.id));
+  const d=new Date(e.start); k=0;
+  const n=e.groups.reduce((a,g)=>a+g[2].length,0);
+  $("#ev").innerHTML=`<section class="event-head">
+      <div class="kicker">${esc(e.kind)} · ${n} peleas</div>
+      <h1>${esc(e.name)}</h1>
+      <div class="meta"><span><b>${fmtDate(d)}</b></span><span>${esc(e.venue)}</span><span>${esc(e.times)}</span><span>${esc(e.tv)}</span></div>
+      <div class="count" id="count" data-t="${d.getTime()}"></div>
+    </section>
+    ${e.groups.map(g=>`<h2>${esc(g[0])}</h2>${g[2].map(b=>fight(b,g[1])).join("")}`).join("")}`;
+  document.querySelectorAll(".more").forEach(b=>b.addEventListener("click",()=>{
+    const h=document.getElementById(b.getAttribute("aria-controls"));h.hidden=!h.hidden;
+    b.setAttribute("aria-expanded",!h.hidden);b.textContent=h.hidden?"Ver ficha completa":"Ocultar ficha";}));
+  tick();
+  try{localStorage.setItem("tuk-tab",e.id)}catch(_){}
+}
+function tick(){
+  const c=$("#count"); if(!c) return;
+  const ms=+c.dataset.t-Date.now();
+  if(ms<=0){c.textContent="El evento ya empezó o terminó";return}
+  const dd=Math.floor(ms/864e5),hh=Math.floor(ms%864e5/36e5),mm=Math.floor(ms%36e5/6e4);
+  c.innerHTML=`Faltan <span>${dd} d ${hh} h ${String(mm).padStart(2,"0")} min</span> para la cartelera estelar`;
+}
+$("#tabs").innerHTML=EV.map(e=>`<button class="tab" role="tab" type="button" data-id="${e.id}"><small>${e.short}</small><strong>${esc(e.name.replace(/^UFC \d+: /,""))}</strong></button>`).join("");
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{render(t.dataset.id);window.scrollTo({top:0})}));
+
+let start=(location.hash||"").slice(1);
+if(!EV.some(e=>e.id===start)){
+  const next=EV.find(e=>new Date(e.start).getTime()>Date.now());
+  let saved=null;try{saved=localStorage.getItem("tuk-tab")}catch(_){}
+  start=next?next.id:(saved||EV[0].id);
+}
+render(start);
+setInterval(tick,30000);
+</script>
+</body>
+</html>
