@@ -1,10 +1,12 @@
 {
- "actualizado": "2026-10-28T18:50:00Z",
+ "actualizado": "2026-10-28T19:46:00Z",
  "metas": {
   "descanso": 2350,
   "entreno": 2650
  },
- "dias": {},
+ "dias": {
+  "2026-10-28": true
+ },
  "items": [
   {
    "fecha": "2026-10-28",
