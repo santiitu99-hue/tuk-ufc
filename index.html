@@ -83,6 +83,16 @@ h2{font-family:var(--label);font-weight:700;font-size:15px;text-transform:upperc
 .split{display:flex;height:9px;border-radius:5px;overflow:hidden;margin:6px 0 5px;background:var(--line)}
 .split .r{background:var(--red)} .split .b{background:var(--blue)}
 .src{font-family:var(--label);font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;text-align:center}
+.plabel{font-family:var(--label);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:4px}
+.mk{display:flex;justify-content:space-between;gap:4px 10px;flex-wrap:wrap;font-family:var(--label);font-size:13px;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.mk b.r{color:var(--red)} .mk b.b{color:var(--blue)}
+.val{margin-top:8px;border:1px solid var(--gold);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13.5px;line-height:1.35}
+.val::first-letter{color:var(--gold)}
+.why{margin:8px 0 0;font-size:13.5px;line-height:1.45;color:var(--ink);max-width:65ch}
+.fight.has-val{border-color:var(--gold)}
+.vsum{margin-top:12px;font-size:14px;line-height:1.6}
+.chip{display:inline-block;font-family:var(--label);font-weight:700;font-size:14px;padding:1px 8px;border-radius:999px;border:1px solid var(--gold);margin:2px 2px 0 0;white-space:nowrap}
+.chip.r{color:var(--red)} .chip.b{color:var(--blue)}
 .noodds{font-family:var(--label);font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;text-align:center;padding:4px 14px 12px}
 .more{width:100%;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font-family:var(--label);font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:10px;cursor:pointer}
 .detail{border-top:1px solid var(--line)}
@@ -118,7 +128,9 @@ h2{font-family:var(--label);font-weight:700;font-size:15px;text-transform:upperc
   <nav class="tabs" id="tabs" role="tablist" aria-label="Eventos"></nav>
   <main id="ev"></main>
   <section class="note">
-    <p><b>Chances.</b> Con cuotas publicadas, las paso a probabilidad sacando el margen de la casa. Sin línea, uso un modelo estadístico (Combat Edge) o el pronóstico de fans de Tapology, y lo aclaro debajo de cada barra. Las cuotas se mueven hasta el día de la pelea.</p>
+    <p><b>Análisis TUK.</b> Es mi estimación propia para cada pelea: cómo matchean los estilos (por ejemplo, si el que derriba puede derribar al otro), estadísticas oficiales, racha, edad, inactividad y nivel de los rivales. Es una opinión razonada, no una certeza.</p>
+    <p><b>Cuotas.</b> Las paso a probabilidad sacando el margen de la casa. Donde no hay cuotas, muestro el modelo estadístico de Combat Edge si existe.</p>
+    <p><b>Ventaja.</b> Se marca en dorado cuando el análisis le da a un peleador al menos 6 puntos más de lo que dice la cuota. Solo se compara contra cuotas reales, no contra modelos. Es información para seguir las peleas, no un consejo de apuestas: las cuotas se mueven y el MMA es muy impredecible.</p>
     <p><b>Perfil de habilidades.</b> Es una lectura de 1 a 10 armada con las estadísticas oficiales de UFC.com (golpes por minuto, derribos, sumisiones, cómo ganó cada uno), no un dato oficial. Para peleadores con pocas peleas en la UFC es más aproximada.</p>
     <p><b>Últimas 5.</b> G = ganó, P = perdió, – = sin resultado o empate. La más reciente va primero. Si alguien tiene menos de 5, son las que hay registradas. Sirve para seguir las peleas; no es consejo de apuestas.</p>
   </section>
@@ -383,6 +395,62 @@ groups:[
 ]}
 ];
 
+// Análisis TUK: "Rojo|Azul" -> [prob. del rojo según el análisis, por qué]
+const AN={
+"Renato Moicano|Tom Nolan":[43,"Moicano casi no derriba (12%) y Nolan es cinturón marrón de BJJ, así que la amenaza del mata león depende de que Moicano lo lastime antes. Nolan tiene 11 años menos, más volumen y castiga al cuerpo, y a Moicano lo noquearon 3 veces. La duda de Nolan son los 5 rounds."],
+"Randy Brown|Jacobe Smith":[28,"Smith es un luchador de élite que lleva la pelea al piso y golpea desde arriba. Brown tiene alcance y peligro desde la espalda (triángulo, guillotina), pero viene de 2 derrotas. Smith pelea dos semanas después de su última pelea, sin un campamento completo."],
+"Yana Santos|Luana Santos":[37,"Luana derriba 2 veces cada 15' con judo y Yana frena solo la mitad de los derribos. Yana tiene más volumen de pie y experiencia, pero 10 años más. Si Luana la lleva al piso, gana los rounds."],
+"Ode' Osbourne|Cody Durden":[48,"Durden intenta casi 4 derribos cada 15' y Osbourne defiende 2 de cada 3. Osbourne es más peligroso de pie. Los dos ganaron 1 de sus últimas 5: es una moneda al aire."],
+"Zachary Reese|Mickey Gall":[78,"Gall viene de 4 derrotas, casi 2 años parado y absorbe 4,7 golpes/min con 38% de defensa de derribo. Reese pega fuerte y también sabe someter."],
+"Jean-Paul Lebosnoyani|Farman Hasanov":[70,"Hasanov vive del derribo y JP todavía no fue derribado en la UFC. De pie, JP tira casi 3 veces más golpes."],
+"Francis Marshall|Dakota Hope":[66,"Marshall defiende el 89% de los derribos y puede elegir dónde pelear. Hope tira mucho, pero también recibe mucho (7/min)."],
+"Rodrigo Sezinando|Theodor Berggren":[57,"Los dos fueron noqueados por Donchenko. Sezinando tiene más lucha (3,4 derribos/15'), pero viene de un año parado. Berggren tiene 26 años y siempre termina sus peleas. Es más pareja de lo que dice la cuota."],
+"Julian Erosa|JeongYeong Lee":[40,"Lee viene de 2 derrotas y casi 18 meses sin pelear. Erosa tiene 37 años y lo noquearon en su última pelea, pero tira el doble (6,2 golpes/min) y tiene guillotina. La cuota trata a Lee como claro favorito y no lo veo tan así."],
+"Nick Klein|Joseph Kropschot":[38,"Klein derriba mucho (5,8/15'), pero Kropschot es un especialista en sumisiones que gana desde abajo. De pie, a Klein ya lo noquearon."],
+"Talita Alencar|Piera Rodriguez":[40,"Rodriguez frena el 82% de los derribos y también derriba. Eso neutraliza el plan de Alencar, que es grapplera."],
+"Lucia Szabová|Tainara Lisboa":[78,"Szabová es campeona invicta de Oktagon y castiga desde arriba. Lisboa viene de 2 derrotas por finalización."],
+"Gabriel Bonfim|Sean Brady":[58,"El plan de Brady es derribar, pero en la UFC concreta el 3% y Bonfim defiende el 79%. De pie, Bonfim es claramente mejor, y a Brady lo terminaron los dos strikers que lo vencieron. El riesgo de Bonfim es el cardio en el 4.º y 5.º round."],
+"Tatiana Suarez|Virna Jandiroba":[64,"Jandiroba casi no derriba (3%) y Suarez es luchadora de nivel mundial (4,5/15'). En el piso, Suarez estaría arriba y Jandiroba buscaría sumisiones desde la guardia."],
+"Davey Grant|Elijah Smith":[35,"Smith tiene 23 años, está 4-0 y lucha bien. Grant, con 40, defiende el 65% de los derribos y tiene más volumen, pero pierde los rounds si lo derriban."],
+"Seokhyeon Ko|Wellington Turman":[68,"Ko derriba y controla y recibe poco. Turman viene de 3 derrotas y casi 3 años sin pelear en la UFC."],
+"Mantas Kondratavičius|Andre Petroski":[70,"Mantas golpea 5 veces por minuto recibiendo 1,3 y defiende el 92% de los derribos. Petroski viene de 3 derrotas, 2 por KO."],
+"Billy Elekana|Lucas Fernando":[58,"Elekana viene de 2 sumisiones seguidas. Fernando es striker y ganó por KO, pero tiene una sola pelea en la UFC."],
+"Gabriel Lorenço|Alvin Hines":[74,"Lorenço suma 8 victorias seguidas, casi todas por KO. Hines está 0-2 en la UFC y recibe 7,6 golpes/min."],
+"Karine Silva|Gabriella Fernandes":[55,"Silva tiene mejor jiu-jitsu y Fernandes casi no derriba, así que el piso depende de Silva. Fernandes recibe mucho (5,3/min)."],
+"Jose Delano|Murtazali Magomedov":[38,"Magomedov está 11-0, derriba 5 veces cada 15' y somete. Delano tira muchísimo de pie, pero es una sola pelea en la UFC."],
+"Keiichiro Nakamura|Ollie Schmid":[74,"Nakamura está 3-0 en la UFC con 2 KO. Schmid tiene un récord parejo y lo noquearon en su debut."],
+"Austin Bashi|Lucas Brennan":[66,"Bashi derriba 6 veces cada 15' y Brennan defiende el 33%."],
+"Priscila Cachoeira|Nina Milošević":[32,"Cachoeira viene de 3 derrotas y recibe 7,5 golpes/min. Milošević ganó por KO en su debut."],
+"Jonny Parsons|José Souza":[43,"Parsons no pelea desde 2023. Souza tiene 24 años y BJJ."],
+"Ciryl Gane|Josh Hokit":[68,"El punto débil de Gane es frenar derribos (47%), pero Hokit concretó 1 de 19 en la UFC. De pie, Gane es mucho más preciso y Hokit recibe 5,3/min. Hokit nunca peleó más de 3 rounds."],
+"Kayla Harrison|Amanda Nunes":[60,"Harrison domina en el piso, pero Nunes defiende el 82% de los derribos y tiene una pegada que Harrison nunca enfrentó. Nunes vuelve con 38 años y 3 de inactividad; Harrison, de una operación de cuello. Es más pareja de lo que marca la cuota."],
+"Caio Borralho|Yousri Belgaroui":[58,"Borralho es muy completo y difícil de lastimar. Belgaroui tiene 1,98 m y es preciso (63%), pero casi no derriba. Si Borralho lo lleva al piso, gana; si no, es una pelea de pie riesgosa."],
+"Uroš Medić|Kevin Holland":[60,"Medić ganó sus últimas 4 por KO en el primer round. Holland es durable y sabe someter, pero Medić defiende solo el 56% de los derribos y Holland casi no derriba."],
+"Bilal Hasan|Luis Gurule":[82,"Hasan es invicto y tira 9 golpes/min. Gurule ganó 1 de sus últimas 5."],
+"Stephen Thompson|Charles Radtke":[42,"Thompson tiene 42 años y viene de 3 derrotas. Radtke derriba 4 veces cada 15'. Radtke recibe mucho de pie, que es donde Thompson es peligroso."],
+"Drew Dober|Chris Duncan":[38,"Duncan somete (4 sumisiones en sus últimas 5 victorias) y Dober defiende el 58% de los derribos. Dober tiene la mano más pesada."],
+"Jim Miller|Terrance McKinney":[34,"McKinney es explosivo en el primer round y Miller tiene 42 años. Pero a McKinney lo sometieron hace poco y Miller vive de la guillotina."],
+"Donte Johnson|Baisangur Susurkaev":[40,"Los dos son invictos. Susurkaev tiene más volumen y finaliza más; Johnson recibe poco."],
+"Macy Chiasson|Bia Mesquita":[28,"Mesquita es multicampeona de BJJ, 3 de 3 por sumisión en la UFC. Chiasson viene de 3 derrotas."],
+"Adrian Yanez|Juan Díaz":[42,"Yanez pega mejor y defiende el 76% de los derribos, pero Díaz intenta 5,5 cada 15'. Si Yanez se mantiene parado, gana."],
+"Nazim Sadykhov|Jefferson Nascimento":[50,"A los dos los noquearon en su última pelea. No hay nada claro."],
+"Jiří Procházka|Navajo Stirling":[45,"Procházka pega muchísimo, pero recibe 5,7/min y defiende el 45%, y viene de ser noqueado. Stirling es preciso, recibe poco (2,6/min) y tiene 6 años menos. Los modelos estadísticos ven favorito a Stirling, al revés que las cuotas."],
+"Aljamain Sterling|Kevin Vallejos":[42,"Sterling depende de derribar, pero concreta el 12% y Vallejos defiende el 85%. De pie, Vallejos pega mucho más fuerte (1,65 caídas cada 15'). Sterling tiene 37 años contra 24 y es experto en pelear por puntos."],
+"Dan Hooker|Brian Ortega":[48,"Hooker viene de 3 derrotas, 2 por KO. Ortega sube de categoría tras 2 derrotas y recibe 6,4 golpes/min. Ortega tiene mejor jiu-jitsu."],
+"Jared Cannonier|Ikram Aliskerov":[30,"Aliskerov derriba, golpea y nadie lo pudo derribar. Cannonier tiene 42 años y ganó 1 de sus últimas 5."],
+"Shamil Gaziev|Tallison Teixeira":[50,"A los dos los noquearon hace poco. Teixeira es más joven y alto; Gaziev defiende mejor los derribos."],
+"Jake Matthews|Tahir Abdullayev":[58,"Matthews es completo y ganó 4 de sus últimas 5. Abdullayev tiene una sola pelea en la UFC."],
+"Aleksandre Topuria|Santiago Luna":[55,"Topuria tiene boxeo prolijo y está 2-0. Luna es joven y viene de su primera derrota."],
+"Asu Almabayev|Kyoji Horiguchi":[55,"Almabayev derriba casi 5 veces cada 15' y Horiguchi defiende el 61%. Horiguchi es más rápido de pie, pero viene de un KO."],
+"Amir Albazi|Alessandro Costa":[45,"Albazi ya le ganó a Costa en 2022, pero viene de 2 derrotas. Costa ganó 3 seguidas en 2026."],
+"Charles Oliveira|Diego Lopes":[52,"Oliveira es el mejor finalizador de la historia de la UFC, pero tiene 37 años y lo noquearon hace poco. Lopes es peligroso de pie y en el piso y llega más fresco. Lo veo más parejo que la cuota."],
+"Sergei Pavlovich|Alex Pereira":[60,"Pavlovich gana en el primer round y Pereira, con 38 años, viene de perder con Gane en su debut en pesado. Pero Pereira es más preciso y a Pavlovich lo noquearon Aspinall y Overeem."],
+"Joe Pyfer|Bo Nickal":[63,"Pyfer pega fuerte y tiene BJJ. Nickal es luchador de élite, pero lo noqueó un rival que lo presionó de pie, como hace Pyfer."],
+"Brandon Moreno|Charles Johnson":[65,"Moreno es ex campeón, con mucho cardio y nivel. Johnson es activo pero le cuesta en el piso."],
+"Quentin Pasley|Junior Tafa":[60,"Tafa pega fuerte pero perdió 2 veces por sumisión en el último año. Pasley llega invicto, aunque es su debut."]
+};
+const VAL=6; // puntos de diferencia para marcar ventaja
+
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const SK=["Striking","Grappling","Lucha"];
@@ -396,14 +464,34 @@ function corner(f,s){
   return `<div class="corner ${s}"><div class="skills">${sk}</div><div class="edge">${esc(f.e)}</div><ol class="hist">${h}</ol><a class="prof" href="https://www.ufc.com/athlete/${f.u}" target="_blank" rel="noopener">Perfil y foto en UFC.com ↗</a></div>`;
 }
 let k=0;
+function market(b){
+  if(!b.p||/Estimaci|Sin cuotas|no coinciden/i.test(b.src||"")) return null;
+  return {p:b.p,odds:/^Cuotas/i.test(b.src),src:b.src};
+}
+function edge(b){
+  const a=AN[b.r.n+"|"+b.b.n], m=market(b);
+  if(!a||!m||!m.odds) return null;
+  const d=a[0]-m.p[0];
+  if(d>=VAL) return {who:b.r.n,side:"r",mine:a[0],mk:m.p[0],d};
+  if(-d>=VAL) return {who:b.b.n,side:"b",mine:100-a[0],mk:m.p[1],d:-d};
+  return null;
+}
+const bar=(p,lr,lb)=>`<div class="split" role="img" aria-label="${esc(lr)} ${p[0]} por ciento, ${esc(lb)} ${p[1]} por ciento"><div class="r" style="width:${p[0]}%"></div><div class="b" style="width:${p[1]}%"></div></div>`;
 function fight(b,open){
   const id="d"+(k++);
-  const pr=b.p?`<div class="prob"><div class="prob-row"><span class="pr">${b.p[0]}%</span><span class="pb">${b.p[1]}%</span></div><div class="split" role="img" aria-label="${esc(b.r.n)} ${b.p[0]} por ciento, ${esc(b.b.n)} ${b.p[1]} por ciento"><div class="r" style="width:${b.p[0]}%"></div><div class="b" style="width:${b.p[1]}%"></div></div><div class="src">${esc(b.src)}</div></div>`
-    :`<div class="noodds">Sin cuotas publicadas todavía</div>`;
-  return `<article class="fight">
+  const a=AN[b.r.n+"|"+b.b.n], m=market(b), v=edge(b);
+  const an=a?`<div class="prob">
+      <div class="plabel">Análisis TUK</div>
+      <div class="prob-row"><span class="pr">${a[0]}%</span><span class="pb">${100-a[0]}%</span></div>
+      ${bar([a[0],100-a[0]],b.r.n,b.b.n)}
+      ${m?`<div class="mk"><span>${m.odds?"Cuotas":"Modelo"}: <b class="r">${m.p[0]}%</b> · <b class="b">${m.p[1]}%</b></span><span class="mks">${esc(m.src.replace(/^Cuotas:\s*/,"").replace(/^Modelo Combat Edge\s*·?\s*/,""))}</span></div>`:`<div class="mk"><span>Sin cuotas publicadas todavía</span></div>`}
+      ${v?`<div class="val ${v.side}">▲ Ventaja en <b>${esc(v.who)}</b>: el análisis le da ${v.mine}% y la cuota ${v.mk}% (+${v.d} pts)</div>`:""}
+      <p class="why">${esc(a[1])}</p>
+    </div>`:`<div class="noodds">Sin análisis</div>`;
+  return `<article class="fight${v?" has-val":""}">
     <div class="fight-top"><span>${esc(b.wc)}</span>${b.tag?`<span class="tag">${esc(b.tag)}</span>`:""}</div>
     <div class="sum">${side(b.r,"r")}<span class="vs">vs</span>${side(b.b,"b")}</div>
-    ${pr}
+    ${an}
     <button class="more" type="button" aria-expanded="${open}" aria-controls="${id}">${open?"Ocultar ficha":"Ver ficha completa"}</button>
     <div class="detail" id="${id}" ${open?"":"hidden"}><div class="tape">${corner(b.r,"r")}${corner(b.b,"b")}</div></div>
   </article>`;
@@ -415,11 +503,13 @@ function render(id){
   document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.id===e.id));
   const d=new Date(e.start); k=0;
   const n=e.groups.reduce((a,g)=>a+g[2].length,0);
+  const vals=e.groups.flatMap(g=>g[2]).map(edge).filter(Boolean);
   $("#ev").innerHTML=`<section class="event-head">
       <div class="kicker">${esc(e.kind)} · ${n} peleas</div>
       <h1>${esc(e.name)}</h1>
       <div class="meta"><span><b>${fmtDate(d)}</b></span><span>${esc(e.venue)}</span><span>${esc(e.times)}</span><span>${esc(e.tv)}</span></div>
       <div class="count" id="count" data-t="${d.getTime()}"></div>
+      <div class="vsum">${vals.length?`<b>Ventajas según el análisis:</b> ${vals.map(v=>`<span class="chip ${v.side}">${esc(v.who)} +${v.d}</span>`).join(" ")}`:`<b>Sin ventajas marcadas:</b> en las peleas con cuotas, el análisis coincide con las casas (o no hay cuotas todavía).`}</div>
     </section>
     ${e.groups.map(g=>`<h2>${esc(g[0])}</h2>${g[2].map(b=>fight(b,g[1])).join("")}`).join("")}`;
   document.querySelectorAll(".more").forEach(b=>b.addEventListener("click",()=>{
