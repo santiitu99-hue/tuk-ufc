@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-10-29T01:16:00Z",
+ "actualizado": "2026-10-29T21:18:00Z",
  "metas": {
   "descanso": 2350,
   "entreno": 2650
@@ -67,6 +67,16 @@
    "kcal": 0,
    "tipo": "bebida",
    "prot": 0
+  },
+  {
+   "fecha": "2026-10-29",
+   "hora": "13:00",
+   "nombre": "Pastel de papa",
+   "cantidad": "300 g · almuerzo",
+   "precio": 0,
+   "kcal": 420,
+   "prot": 25,
+   "tipo": "comida"
   }
  ],
  "metaProteina": 140
