@@ -19,17 +19,17 @@
 /* Layout: una columna tipo libreta; resumen de hoy arriba, días hacia abajo con su ticket de consumos */
 :root{
   --bg:#f6f5ef; --surface:#ffffff; --fg:#1f2419; --muted:#6b705f; --line:#e2e1d6;
-  --accent:#3d5a2a; --accent-soft:#e6ecdc; --kcal:#b7791f; --kcal-soft:#f7ecd8; --danger:#b3412f; --danger-soft:#f6e1dc; --ok:#2f7d3e; --ok-soft:#dff0e2;
+  --accent:#3d5a2a; --accent-soft:#e6ecdc; --kcal:#b7791f; --kcal-soft:#f7ecd8; --danger:#b3412f; --danger-soft:#f6e1dc; --ok:#2f7d3e; --ok-soft:#dff0e2; --prot:#3b5f9e; --prot-soft:#e1e8f5;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#151812; --surface:#1d211a; --fg:#ecefe4; --muted:#9ba08e; --line:#2e3329;
-  --accent:#9cc27c; --accent-soft:#26301f; --kcal:#e3ad5a; --kcal-soft:#352a17; --danger:#e07a68; --danger-soft:#3a201b; --ok:#7fcf8c; --ok-soft:#1d3322; color-scheme:dark}}
+  --accent:#9cc27c; --accent-soft:#26301f; --kcal:#e3ad5a; --kcal-soft:#352a17; --danger:#e07a68; --danger-soft:#3a201b; --ok:#7fcf8c; --ok-soft:#1d3322; --prot:#8fb1ec; --prot-soft:#1c2638; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#151812; --surface:#1d211a; --fg:#ecefe4; --muted:#9ba08e; --line:#2e3329;
-  --accent:#9cc27c; --accent-soft:#26301f; --kcal:#e3ad5a; --kcal-soft:#352a17; --danger:#e07a68; --danger-soft:#3a201b; --ok:#7fcf8c; --ok-soft:#1d3322; color-scheme:dark}
+  --accent:#9cc27c; --accent-soft:#26301f; --kcal:#e3ad5a; --kcal-soft:#352a17; --danger:#e07a68; --danger-soft:#3a201b; --ok:#7fcf8c; --ok-soft:#1d3322; --prot:#8fb1ec; --prot-soft:#1c2638; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
@@ -43,7 +43,12 @@ h1{font:800 clamp(28px,6vw,40px)/1.05 var(--display);margin:0;letter-spacing:-.0
 .today h2{grid-column:1/-1;margin:0;font:600 18px var(--display)}
 .stat{display:flex;flex-direction:column;gap:2px}
 .stat .v{font:500 clamp(24px,5vw,32px)/1.1 var(--mono);font-variant-numeric:tabular-nums}
-.stat.money .v{color:var(--accent)} .stat.cal .v{color:var(--kcal)}
+.stat.money .v{color:var(--accent)} .stat.cal .v{color:var(--kcal)} .stat.prot .v{color:var(--prot)}
+.bar.p{background:var(--prot-soft)} .bar.p i{background:var(--prot)}
+.pill.p{background:var(--prot-soft);color:var(--prot)}
+.stat.prot{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:end}
+.stat.prot .bar{grid-column:1/-1}
+.pk{font:500 12px var(--mono);color:var(--prot)}
 .week{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px;display:flex;gap:20px;flex-wrap:wrap;color:var(--muted);font-size:13px}
 .week b{color:var(--fg);font-weight:500}
 
@@ -61,7 +66,7 @@ button{font:600 14px var(--body);border-radius:8px;border:0;padding:10px 14px;cu
 .day{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--line)}
 .dayhead h3{margin:0;font:600 17px var(--display)}
-.pills{display:flex;gap:8px}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
 .pill{font:500 13px var(--mono);font-variant-numeric:tabular-nums;padding:3px 9px;border-radius:999px}
 .pill.m{background:var(--accent-soft);color:var(--accent)} .pill.k{background:var(--kcal-soft);color:var(--kcal)}
 .tbl{overflow-x:auto}
@@ -119,6 +124,7 @@ body{margin:0}
     <div class="stat money"><span class="label">Gastado</span><span class="v" id="tMoney">$0</span></div>
     <div class="stat cal"><span class="label">Calorías</span><span class="v" id="tKcal">0 kcal</span><span class="of" id="tMeta">de 2.350 kcal</span></div>
     <div class="goal"><div class="bar" id="tBarBox"><i id="tBar"></i></div><div class="goalrow"><span class="left" id="tLeft">Te quedan 2.350 kcal</span><span class="chip" id="tTrain">Día de descanso</span></div></div>
+    <div class="stat prot"><span class="label" style="grid-column:1/-1">Proteína</span><span class="v" id="tProt">0 g</span><span class="of" id="tProtLeft">de 140 g</span><div class="bar p"><i id="tProtBar"></i></div></div>
     <div class="week"><span>Este mes: <b class="num" id="mMoney">$0</b> · <b class="num" id="mKcal">0 kcal</b></span><span>Últimos 7 días: <b class="num" id="wMoney">$0</b></span><span>Promedio diario: <b class="num" id="wKcal">0 kcal</b></span></div>
   </section>
 
@@ -146,10 +152,11 @@ function dayName(iso){
   return diff===0?"Hoy · "+cap:diff===1?"Ayer · "+cap:cap;
 }
 function esc(s){const d=document.createElement("div");d.textContent=s??"";return d.innerHTML}
-let ITEMS=[], DIAS={}, METAS={descanso:2350,entreno:2650};
+let ITEMS=[], DIAS={}, METAS={descanso:2350,entreno:2650}, PROT=140;
 const metaDe=f=>DIAS[f]?METAS.entreno:METAS.descanso;
 function goal(f,kcal){const meta=metaDe(f),left=meta-kcal;return{meta,left,pct:Math.min(100,kcal/meta*100),over:left<0}}
-const tot=a=>a.reduce((s,i)=>[s[0]+(+i.precio||0),s[1]+(+i.kcal||0)],[0,0]);
+const tot=a=>a.reduce((s,i)=>[s[0]+(+i.precio||0),s[1]+(+i.kcal||0),s[2]+(+i.prot||0)],[0,0,0]);
+const fmtP=n=>Math.round(n||0).toLocaleString("es-AR")+" g";
 function render(){
   const today=todayISO();
   $("#todayTitle").textContent=dayName(today);
@@ -158,6 +165,8 @@ function render(){
   const t=tot(byDay[today]||[]), tg=goal(today,t[1]);
   $("#tMoney").textContent=fmt$(t[0]); $("#tKcal").textContent=fmtK(t[1]);
   $("#tMeta").textContent="de "+fmtK(tg.meta);
+  $("#tProt").textContent=fmtP(t[2]); $("#tProtBar").style.width=Math.min(100,t[2]/PROT*100)+"%";
+  $("#tProtLeft").textContent=t[2]>=PROT?"Meta de "+fmtP(PROT)+" cumplida":"de "+fmtP(PROT)+" · faltan "+fmtP(PROT-t[2]);
   $("#tBar").style.width=tg.pct+"%"; $("#tBarBox").classList.toggle("over",tg.over);
   $("#tLeft").textContent=tg.over?"Te pasaste "+fmtK(-tg.left):"Te quedan "+fmtK(tg.left);
   $("#tLeft").classList.toggle("over",tg.over);
@@ -169,22 +178,22 @@ function render(){
   $("#mMoney").textContent=fmt$(m[0]); $("#mKcal").textContent=fmtK(m[1]);
   $("#wMoney").textContent=fmt$(w[0]); $("#wKcal").textContent=fmtK(wk.length?w[1]/wk.length:0);
   const closed=days.filter(d=>d<today);
-  $("#histList").innerHTML=closed.length?closed.map(d=>{const k=tot(byDay[d])[1],g=goal(d,k);
-    return `<li class="${g.over?"bad":""}"><span class="d">${esc(dayName(d))}</span><span class="k">${Math.round(k).toLocaleString("es-AR")} / ${fmtK(g.meta)}</span><span class="st">${g.over?"+"+Math.round(-g.left).toLocaleString("es-AR")+" de más":"Cumplido"}</span></li>`}).join("")
+  $("#histList").innerHTML=closed.length?closed.map(d=>{const T=tot(byDay[d]),k=T[1],g=goal(d,k);
+    return `<li class="${g.over?"bad":""}"><span class="d">${esc(dayName(d))}</span><span class="k">${Math.round(k).toLocaleString("es-AR")} / ${fmtK(g.meta)}<div class="pk">${fmtP(T[2])} prot</div></span><span class="st">${g.over?"+"+Math.round(-g.left).toLocaleString("es-AR")+" de más":"Cumplido"}</span></li>`}).join("")
     :'<li class="none">Cuando termine el día de hoy aparece acá con su total: en verde si quedaste dentro de tu meta, en rojo si te pasaste.</li>';
   const box=$("#days");
   if(!days.length){box.innerHTML='<div class="empty"><strong>Todavía no hay nada anotado</strong>Mandale a Claude lo que comiste o tomaste y aparece acá.</div>';return}
   box.innerHTML=days.map(d=>{
     const list=byDay[d].slice().sort((a,b)=>(a.hora||"").localeCompare(b.hora||""));
     const s=tot(list),g=goal(d,s[1]);
-    return `<article class="day"><div class="dayhead"><h3>${esc(dayName(d))}</h3><div class="pills"><span class="pill m">${fmt$(s[0])}</span><span class="pill k">${Math.round(s[1]).toLocaleString("es-AR")} / ${fmtK(g.meta)}</span></div></div>
+    return `<article class="day"><div class="dayhead"><h3>${esc(dayName(d))}</h3><div class="pills"><span class="pill m">${fmt$(s[0])}</span><span class="pill k">${Math.round(s[1]).toLocaleString("es-AR")} / ${fmtK(g.meta)}</span><span class="pill p">${Math.round(s[2])} / ${fmtP(PROT)} prot</span></div></div>
     <div class="daygoal"><div class="bar${g.over?" over":""}"><i style="width:${g.pct}%"></i></div><div class="goalrow"><span class="left${g.over?" over":""}">${g.over?"Te pasaste "+fmtK(-g.left):(d===today?"Te quedan ":"Quedaron ")+fmtK(g.left)}</span><span class="chip" aria-pressed="${!!DIAS[d]}">${DIAS[d]?"Día de entreno":"Día de descanso"}</span></div></div>
-    <div class="tbl"><table><tbody>${list.map(i=>`<tr><td class="h">${esc(i.hora||"–")}</td><td>${esc(i.nombre)}${i.tipo==="bebida"?'<span class="tag">bebida</span>':""}${i.cantidad?`<div class="qty">${esc(i.cantidad)}</div>`:""}</td><td class="r">${+i.precio?fmt$(i.precio):"–"}</td><td class="r">${fmtK(i.kcal)}</td></tr>`).join("")}</tbody></table></div></article>`}).join("");
+    <div class="tbl"><table><tbody>${list.map(i=>`<tr><td class="h">${esc(i.hora||"–")}</td><td>${esc(i.nombre)}${i.tipo==="bebida"?'<span class="tag">bebida</span>':""}${i.cantidad?`<div class="qty">${esc(i.cantidad)}</div>`:""}</td><td class="r">${+i.precio?fmt$(i.precio):"–"}</td><td class="r">${fmtK(i.kcal)}${+i.prot?`<div class="pk">${fmtP(i.prot)} prot</div>`:""}</td></tr>`).join("")}</tbody></table></div></article>`}).join("");
 }
 async function load(){
   try{
     const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"}); const j=await r.json();
-    ITEMS=j.items||[]; DIAS=j.dias||{}; METAS={descanso:+(j.metas||{}).descanso||2350,entreno:+(j.metas||{}).entreno||2650};
+    ITEMS=j.items||[]; PROT=+j.metaProteina||140; DIAS=j.dias||{}; METAS={descanso:+(j.metas||{}).descanso||2350,entreno:+(j.metas||{}).entreno||2650};
     if(j.actualizado){$("#upd").textContent="Actualizado "+new Date(j.actualizado).toLocaleString("es-AR",{timeZone:tz,day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}
     render();
   }catch(e){$("#days").innerHTML='<div class="empty"><strong>No se pudieron cargar los datos</strong>Revisá la conexión y volvé a abrir la página.</div>'}

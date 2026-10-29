@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-10-29T01:14:00Z",
+ "actualizado": "2026-10-29T01:16:00Z",
  "metas": {
   "descanso": 2350,
   "entreno": 2650
@@ -15,7 +15,8 @@
    "cantidad": "2 unidades · almuerzo",
    "precio": 0,
    "kcal": 600,
-   "tipo": "comida"
+   "tipo": "comida",
+   "prot": 26
   },
   {
    "fecha": "2026-10-28",
@@ -24,7 +25,8 @@
    "cantidad": "2 unidades · almuerzo",
    "precio": 0,
    "kcal": 660,
-   "tipo": "comida"
+   "tipo": "comida",
+   "prot": 24
   },
   {
    "fecha": "2026-10-28",
@@ -33,7 +35,8 @@
    "cantidad": "1 litro",
    "precio": 0,
    "kcal": 0,
-   "tipo": "bebida"
+   "tipo": "bebida",
+   "prot": 0
   },
   {
    "fecha": "2026-10-28",
@@ -42,7 +45,8 @@
    "cantidad": "2 porciones · cena post entreno",
    "precio": 0,
    "kcal": 650,
-   "tipo": "comida"
+   "tipo": "comida",
+   "prot": 26
   },
   {
    "fecha": "2026-10-28",
@@ -51,7 +55,8 @@
    "cantidad": "1 unidad · cena post entreno",
    "precio": 0,
    "kcal": 300,
-   "tipo": "comida"
+   "tipo": "comida",
+   "prot": 11
   },
   {
    "fecha": "2026-10-28",
@@ -60,7 +65,9 @@
    "cantidad": "3 vasos",
    "precio": 0,
    "kcal": 0,
-   "tipo": "bebida"
+   "tipo": "bebida",
+   "prot": 0
   }
- ]
+ ],
+ "metaProteina": 140
 }
