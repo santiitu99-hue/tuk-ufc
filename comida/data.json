@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-10-28T19:46:00Z",
+ "actualizado": "2026-10-29T01:14:00Z",
  "metas": {
   "descanso": 2350,
   "entreno": 2650
@@ -31,6 +31,33 @@
    "hora": "15:35",
    "nombre": "Agua",
    "cantidad": "1 litro",
+   "precio": 0,
+   "kcal": 0,
+   "tipo": "bebida"
+  },
+  {
+   "fecha": "2026-10-28",
+   "hora": "21:45",
+   "nombre": "Pizza de muzzarella",
+   "cantidad": "2 porciones · cena post entreno",
+   "precio": 0,
+   "kcal": 650,
+   "tipo": "comida"
+  },
+  {
+   "fecha": "2026-10-28",
+   "hora": "21:45",
+   "nombre": "Empanada de carne",
+   "cantidad": "1 unidad · cena post entreno",
+   "precio": 0,
+   "kcal": 300,
+   "tipo": "comida"
+  },
+  {
+   "fecha": "2026-10-28",
+   "hora": "21:45",
+   "nombre": "Coca-Cola Zero",
+   "cantidad": "3 vasos",
    "precio": 0,
    "kcal": 0,
    "tipo": "bebida"
