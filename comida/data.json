@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-10-30T15:06:00Z",
+ "actualizado": "2026-10-30T19:20:00Z",
  "metas": {
   "descanso": 2350,
   "entreno": 2650
@@ -106,6 +106,26 @@
    "precio": 0,
    "kcal": 200,
    "prot": 3,
+   "tipo": "comida"
+  },
+  {
+   "fecha": "2026-10-30",
+   "hora": "16:00",
+   "nombre": "Suprema de pollo",
+   "cantidad": "1 unidad · almuerzo",
+   "precio": 0,
+   "kcal": 450,
+   "prot": 45,
+   "tipo": "comida"
+  },
+  {
+   "fecha": "2026-10-30",
+   "hora": "16:00",
+   "nombre": "Puré de papa",
+   "cantidad": "1 porción · almuerzo",
+   "precio": 0,
+   "kcal": 250,
+   "prot": 5,
    "tipo": "comida"
   }
  ],
