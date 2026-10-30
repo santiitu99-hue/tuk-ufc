@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-10-30T15:05:00Z",
+ "actualizado": "2026-10-30T15:06:00Z",
  "metas": {
   "descanso": 2350,
   "entreno": 2650
@@ -82,10 +82,10 @@
    "fecha": "2026-10-29",
    "hora": "21:30",
    "nombre": "Hawaiian Steak (Kansas)",
-   "cantidad": "1 porción · cena",
+   "cantidad": "400 g · cena",
    "precio": 0,
-   "kcal": 780,
-   "prot": 65,
+   "kcal": 1040,
+   "prot": 87,
    "tipo": "comida"
   },
   {
